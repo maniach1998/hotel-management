@@ -4,6 +4,11 @@ import User from '../schema/User.js';
 
 const create = async (firstName, lastName, email, password, accountType) => {
 	// TODO: add validation for fields
+	// firstName: valid string
+	// lastName: valid string
+	// email: valid string -> must be a valid email
+	// password: valid string
+	// accountType: valid string -> either "user" or "hotel"
 
 	// Check if user already exists
 	const userExists = await User.findOne({ email });
@@ -22,10 +27,26 @@ const create = async (firstName, lastName, email, password, accountType) => {
 	return user;
 };
 
+const update = async (id, firstName, lastName, email, password) => {
+	// TODO: add validation for fields
+	// id: valid ObjectId -> check if User exists
+	// firstName: valid string
+	// lastName: valid string
+	// email: valid string -> must be a valid email -> check if User with this email already exists
+	// password: valid string
+	// return updated User
+};
+
+const remove = async (id) => {
+	// TODO: add validation for fields
+	// id: valid ObjectId -> check if User exists
+	// return the removed User
+};
+
 const getAll = async () => {
 	const users = await User.find();
 
 	return users;
 };
 
-export default { create, getAll };
+export default { create, update, remove, getAll };
