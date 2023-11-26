@@ -17,16 +17,11 @@ router
 		}
 	})
 	.post(async (req, res) => {
+		// TODO: move this code to '/register' route
 		const newUserData = req.body;
 
 		if (newUserData === undefined || Object.keys(newUserData).length === 0)
 			return res.status(400).send({ error: 'No fields provided in request body!' });
-
-		// TODO: validate data
-		// try {
-		// } catch (e) {
-		// 	return res.status(400).send({ error: e.message });
-		// }
 
 		try {
 			const user = await userData.create(
