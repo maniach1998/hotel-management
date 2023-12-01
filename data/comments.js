@@ -13,11 +13,11 @@ const create = async (hotelId, authorId, content) => {
 
 	// Check if Hotel exists
 	const hotel = await Hotel.findById(hotelId);
-	if (!hotel) throw { status: 400, message: "Hotel with this `hotelId` doesn't exist!" };
+	if (!hotel) throw { status: 404, message: "Hotel with this `hotelId` doesn't exist!" };
 
 	// Check if User exists
 	const user = await User.findById(authorId);
-	if (!user) throw { status: 400, message: "User with this `authorId` doesn't exist!" };
+	if (!user) throw { status: 404, message: "User with this `authorId` doesn't exist!" };
 
 	// Create and save the new comment
 	const newComment = new Comment({ hotel: hotelId, author: authorId, content });
@@ -43,23 +43,18 @@ const get = async (commentId) => {
 	return comment;
 };
 
-// Updates an existing comment
+// Updates an existing comment/reply
 const update = async (commentId, content) => {
 	// TODO:
-	// commentId: valid ObjectId -> check if comment exists
-	// content: valid string
+	// test the function
 
 	// Validation
 	commentId = checkId(commentId, 'Comment Id');
 	content = checkString(content, 'Content');
 
-	// Check if Comment exists
-	const comment = await Comment.findById(commentId);
-	if (!comment) throw { status: 400, message: "Comment with this commentId doesn't exist!" };
-
 	// Update the Comment with new content
 	const updatedComment = await Comment.findByIdAndUpdate(commentId, { content });
-	if (!updatedComment) throw { status: 500, message: "Unexpected error, couldn't update comment!" };
+	if (!updatedComment) throw { status: 404, message: "Comment with this commentId doesn't exist!" };
 
 	return updatedComment;
 };
@@ -86,6 +81,38 @@ const reply = async (commentId, authorId, content) => {
 	// commentId: valid ObjectId -> check if comment exists
 	// authorId: valid ObjectId -> check if user exists
 	// content: valid string
+
+	// Validation
+	commentId = checkId(commentId, 'Comment Id');
+	authorId = checkId(authorId, 'Author Id');
+	content = checkString(content, 'Content');
 };
 
-export default { create, get, update, remove, reply };
+const removeReply = async (commentId, replyId) => {
+	// Validation
+	commentId = checkId(commentId, 'Parent Comment Id');
+	replyId = checkId(replyId, 'Reply Id');
+
+	// TODO:
+	// check if parent comment exists
+	// check if reply exists -> delete reply -> remove replyId from parent comments array
+	// return deletedReply
+};
+
+// Returns all replies of a comment
+const getReplies = async (commentId) => {
+	// TODO:
+	// testing
+
+	// Validation
+	commentId = checkId(commentId, 'Comment Id');
+
+	const comment = await Comment.findById(commentId).populate([
+		{ path: 'replies', populate: { path: 'author', component: 'User' } },
+	]);
+	if (!comment) throw { status: 404, message: "Comment with this commentId doesn't exist!" };
+
+	return comment.replies;
+};
+
+export default { create, get, update, remove, reply, removeReply, getReplies };

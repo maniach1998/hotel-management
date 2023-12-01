@@ -116,6 +116,9 @@ router
 			return res.status(e.status).send({ error: e.message });
 		}
 	})
+	.patch(async (req, res) => {
+		// TODO: update comment data
+	})
 	.delete(async (req, res) => {
 		let commentId = req.params.commentId;
 
@@ -135,4 +138,34 @@ router
 			return res.status(e.status).send({ error: e.message });
 		}
 	});
+
+router
+	.route('/comment/:commentId/replies')
+	.get(async (req, res) => {
+		// TODO: get comment replies
+		let commentId = req.params.commentId;
+
+		// Validation
+		try {
+			commentId = checkId(commentId, 'commentId');
+		} catch (e) {
+			return res.status(400).send({ error: e.message });
+		}
+
+		// Get all replies of the comment
+		try {
+			const replies = await commentData.getReplies(commentId);
+
+			return res.send({ replies });
+		} catch (e) {
+			return res.status(e.status).send({ error: e.message });
+		}
+	})
+	.post(async (req, res) => {
+		// TODO: create a new reply to `commentId` comment
+	})
+	.delete(async (req, res) => {
+		// TODO: delete a reply
+	});
+
 export default router;
