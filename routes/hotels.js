@@ -1,7 +1,8 @@
 import { Router } from 'express';
 const router = Router();
 
-import { hotelData } from '../data/index.js';
+import { hotelData, commentData } from '../data/index.js';
+import { checkId, checkString } from '../helpers.js';
 
 router
 	.route('/')
@@ -47,5 +48,177 @@ router.route('/:id').get(async (req, res) => {
 	// TODO: get individual hotel
 	// id: valid ObjectId -> check if hotel exists
 });
+
+router.route('/comment').post(async (req, res) => {
+	// Creates a new comment
+	const newCommentData = req.body;
+
+	const errors = [];
+
+	// Validation
+	// Check comment hotel id
+	try {
+		newCommentData.hotel = checkId(newCommentData.hotel, 'hotel');
+	} catch (e) {
+		errors.push(e.message);
+	}
+
+	// Check comment author id
+	try {
+		newCommentData.author = checkId(newCommentData.author, 'author');
+	} catch (e) {
+		errors.push(e.message);
+	}
+
+	// Check comment content
+	try {
+		newCommentData.content = checkString(newCommentData.content, 'content');
+	} catch (e) {
+		errors.push(e.message);
+	}
+
+	// If errors exist, return errors with 400
+	if (errors.length > 0) {
+		return res.status(400).send({ errors });
+	}
+
+	// If data is valid, create a new comment
+	try {
+		const comment = await commentData.create(
+			newCommentData.hotel,
+			newCommentData.author,
+			newCommentData.content
+		);
+
+		return res.send({ comment });
+	} catch (e) {
+		return res.status(e.status).send({ error: e.message });
+	}
+});
+
+router
+	.route('/comment/:commentId')
+	.get(async (req, res) => {
+		// Returns a comment/reply with _id: commentId if exists
+		let commentId = req.params.commentId;
+
+		// Validation
+		try {
+			commentId = checkId(commentId, 'commentId');
+		} catch (e) {
+			return res.status(400).send({ error: e.message });
+		}
+
+		// Get the requested comment
+		try {
+			const comment = await commentData.get(commentId);
+
+			return res.send({ comment });
+		} catch (e) {
+			return res.status(e.status).send({ error: e.message });
+		}
+	})
+	.patch(async (req, res) => {
+		// Updates a comment/reply with _id: commentId if exists
+		let commentId = req.params.commentId;
+		const updatedCommentData = req.body;
+
+		const errors = [];
+
+		// Validation
+		// Check comment id
+		try {
+			commentId = checkId(commentId, 'commentId');
+		} catch (e) {
+			errors.push(e.message);
+		}
+
+		// Check updated content
+		try {
+			updatedCommentData.content = checkString(updatedCommentData.content, 'content');
+		} catch (e) {
+			errors.push(e.message);
+		}
+
+		// If errors exist, return errors with 400
+		if (errors.length > 0) {
+			return res.status(400).send({ errors });
+		}
+
+		// If data is valid, update the comment
+		try {
+			const updatedComment = await commentData.update(commentId, updatedCommentData.content);
+
+			return res.send({ comment: updatedComment });
+		} catch (e) {
+			return res.status(e.status).send({ error: e.message });
+		}
+	})
+	.delete(async (req, res) => {
+		// Deletes a comment with _id: commentId if exists
+		let commentId = req.params.commentId;
+
+		// Validation
+		try {
+			commentId = checkId(commentId, 'commentId');
+		} catch (e) {
+			return res.status(400).send({ error: e.message });
+		}
+
+		// Delete the comment
+		try {
+			const deletedComment = await commentData.remove(commentId);
+
+			return res.send({ comment: deletedComment, deleted: true });
+		} catch (e) {
+			return res.status(e.status).send({ error: e.message });
+		}
+	});
+
+router
+	.route('/comment/:commentId/replies')
+	.get(async (req, res) => {
+		// Returns the replies of a comment with _id: commentId
+		// TODO: testing and populating
+		let commentId = req.params.commentId;
+
+		// Validation
+		try {
+			commentId = checkId(commentId, 'commentId');
+		} catch (e) {
+			return res.status(400).send({ error: e.message });
+		}
+
+		// Get all replies of the comment
+		try {
+			const replies = await commentData.getReplies(commentId);
+
+			return res.send({ replies });
+		} catch (e) {
+			return res.status(e.status).send({ error: e.message });
+		}
+	})
+	.post(async (req, res) => {
+		// TODO: create a new reply to `commentId` comment
+	})
+	.delete(async (req, res) => {
+		// TODO: delete a reply
+	});
+
+router
+	.route('/comment/:commentId/replies/:replyId')
+	.patch(async (req, res) => {
+		// TODO: update reply content
+		// commentId: valid ObjectId -> check if comment exist
+		// replyId: valid ObjectId -> check if reply exists
+		// content: valid string
+		// return updated reply
+	})
+	.delete(async (req, res) => {
+		// TODO: delete reply from a comment
+		// commentId: valid ObjectId -> check if comment exist
+		// replyId: valid ObjectId -> check if reply exists
+		// return deleted reply
+	});
 
 export default router;
