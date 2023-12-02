@@ -45,18 +45,19 @@ const get = async (commentId) => {
 
 // Updates an existing comment/reply
 const update = async (commentId, content) => {
-	// TODO:
-	// test the function
-
 	// Validation
 	commentId = checkId(commentId, 'Comment Id');
 	content = checkString(content, 'Content');
 
 	// Update the Comment with new content
-	const updatedComment = await Comment.findByIdAndUpdate(commentId, { content });
+	const updatedComment = await Comment.findByIdAndUpdate(
+		commentId,
+		{ content },
+		{ returnDocument: 'after' }
+	);
 	if (!updatedComment) throw { status: 404, message: "Comment with this commentId doesn't exist!" };
 
-	return updatedComment;
+	return updatedComment.populate('author');
 };
 
 // Deletes an existing comment
