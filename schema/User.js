@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 import ROLES from '../constants.js';
 const Schema = mongoose.Schema;
 
-const UserSchema = new Schema({
+export const UserSchema = new Schema({
 	firstName: { type: String, required: true, max: 64 },
 	lastName: { type: String, required: true, max: 128 },
 	email: { type: String, required: true, max: 255, unique: true },

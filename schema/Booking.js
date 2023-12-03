@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 const Schema = mongoose.Schema;
 
-const BookingSchema = Schema({
+export const BookingSchema = Schema({
 	hotel: { type: mongoose.ObjectId, ref: 'Hotel', required: true },
 	room: { type: mongoose.ObjectId, ref: 'Room', required: true },
 	finalAmount: { type: Number, required: true },
