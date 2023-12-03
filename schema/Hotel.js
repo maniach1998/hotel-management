@@ -7,6 +7,7 @@ import { RoomSchema } from './Room.js';
 
 const HotelSchema = new Schema({
 	name: { type: String, required: true, max: 64 },
+	description: { type: String, max: 128 },
 	manager: { type: mongoose.ObjectId, ref: 'User', required: true },
 	rooms: [RoomSchema],
 	comments: [CommentSchema],
