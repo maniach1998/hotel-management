@@ -1,6 +1,6 @@
+import { ObjectId } from 'mongodb';
 import Hotel from '../schema/Hotel.js';
 import User from '../schema/User.js';
-import Comment from '../schema/Comment.js';
 
 import { checkId, checkString } from '../helpers.js';
 
@@ -19,61 +19,97 @@ const create = async (hotelId, authorId, content) => {
 	const user = await User.findById(authorId);
 	if (!user) throw { status: 404, message: "User with this `authorId` doesn't exist!" };
 
-	// Create and save the new comment
-	const newComment = new Comment({ hotel: hotelId, author: authorId, content });
-	const comment = await newComment.save();
+	// Create a new Comment
+	const id = new ObjectId();
+	const newComment = { _id: id, hotel: hotelId, author: authorId, content };
+	hotel.comments.push(newComment);
 
-	if (!comment) throw { status: 500, message: "Unexpected error, couldn't create comment!" };
+	// Save the Hotel with the newly added comment
+	const updatedHotel = await hotel.save();
+	if (!updatedHotel) throw { status: 500, message: "Unexpected error, couldn't create comment!" };
 
-	// Add commentId to the Hotel's comments array
-	await hotel.updateOne({ $push: { comments: comment._id } });
+	const comment = updatedHotel.comments.id(id);
 
 	return comment;
 };
 
 // Returns a single comment
-const get = async (commentId) => {
+const get = async (hotelId, commentId) => {
 	// Validation
+	hotelId = checkId(hotelId, 'Hotel Id');
 	commentId = checkId(commentId, 'Comment Id');
 
+	// Check if Hotel exists
+	const hotel = await Hotel.findById(hotelId);
+	if (!hotel) throw { status: 404, message: "Hotel with this `hotelId` doesn't exist!" };
+
 	// Find and return the comment
-	const comment = await Comment.findById(commentId).populate('author');
+	const comment = hotel.comments.id(commentId);
 	if (!comment) throw { status: 404, message: "Couldn't find this comment!" };
 
 	return comment;
 };
 
 // Updates an existing comment/reply
-const update = async (commentId, content) => {
+const update = async (hotelId, commentId, content) => {
+	// TODO: check if poster and updater is the same user
 	// Validation
+	hotelId = checkId(hotelId, 'Hotel Id');
 	commentId = checkId(commentId, 'Comment Id');
 	content = checkString(content, 'Content');
 
-	// Update the Comment with new content
-	const updatedComment = await Comment.findByIdAndUpdate(
-		commentId,
-		{ content },
-		{ returnDocument: 'after' }
-	);
-	if (!updatedComment) throw { status: 404, message: "Comment with this commentId doesn't exist!" };
+	// Check if Hotel exists
+	const hotel = await Hotel.findById(hotelId);
+	if (!hotel) throw { status: 404, message: "Hotel with this `hotelId` doesn't exist!" };
 
-	return updatedComment.populate('author');
+	// Check if comment exists
+	const comment = hotel.comments.id(commentId);
+	if (!comment) throw { status: 404, message: "Couldn't find this comment!" };
+
+	// Update the comment with new content
+	comment.set({ content });
+	const updatedHotel = await hotel.save();
+	if (!updatedHotel) throw { status: 500, message: "Unexpected error, couldn't update comment!" };
+
+	const updatedComment = updatedHotel.comments.id(commentId);
+
+	return updatedComment;
 };
 
 // Deletes an existing comment
-const remove = async (commentId) => {
+const remove = async (hotelId, commentId) => {
+	// TODO: testing
 	// Validation
+	hotelId = checkId(hotelId, 'Hotel Id');
 	commentId = checkId(commentId, 'Comment Id');
 
-	// Find and delete the comment
-	const deletedComment = await Comment.findByIdAndDelete(commentId);
-	if (!deletedComment) throw { status: 404, message: "Comment with this commentId doesn't exist!" };
+	// Check if Hotel exists
+	const hotel = await Hotel.findById(hotelId);
+	if (!hotel) throw { status: 404, message: "Hotel with this `hotelId` doesn't exist!" };
 
-	// Remove commentId from the Hotel's comments array
-	await Hotel.findByIdAndUpdate(deletedComment.hotel, { $pull: { comments: deletedComment._id } });
-	// TODO: delete all replies of a comment
+	// Check if comment exists
+	const comment = hotel.comments.id(commentId);
+	if (!comment) throw { status: 404, message: "Comment with this `commentId` doesn't exist!" };
+
+	// Remove comment from the Hotel's comments array
+	comment.deleteOne();
+	const updatedHotel = await hotel.save();
+	if (!updatedHotel) throw { status: 500, message: "Unexpected error, couldn't delete comment!" };
 
 	return deletedComment;
+};
+
+const getComments = async (hotelId) => {
+	// Validation
+	hotelId = checkId(hotelId, 'Hotel Id');
+
+	// Find hotel and return all comments
+	const hotel = await Hotel.findById(hotelId);
+	if (!hotel) throw { status: 404, message: "Hotel with this `hotelId` doesn't exist!" };
+
+	const comments = hotel.comments;
+
+	return comments;
 };
 
 // Reply to an existing comment
@@ -116,4 +152,4 @@ const getReplies = async (commentId) => {
 	return comment.replies;
 };
 
-export default { create, get, update, remove, reply, removeReply, getReplies };
+export default { create, get, update, remove, getComments, reply, removeReply, getReplies };

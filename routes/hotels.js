@@ -119,69 +119,108 @@ router
 		// return deleted room
 	});
 
-router.route('/comment').post(async (req, res) => {
-	// Creates a new comment
-	const newCommentData = req.body;
-
-	const errors = [];
-
-	// Validation
-	// Check comment hotel id
-	try {
-		newCommentData.hotel = checkId(newCommentData.hotel, 'hotel');
-	} catch (e) {
-		errors.push(e.message);
-	}
-
-	// Check comment author id
-	try {
-		newCommentData.author = checkId(newCommentData.author, 'author');
-	} catch (e) {
-		errors.push(e.message);
-	}
-
-	// Check comment content
-	try {
-		newCommentData.content = checkString(newCommentData.content, 'content');
-	} catch (e) {
-		errors.push(e.message);
-	}
-
-	// If errors exist, return errors with 400
-	if (errors.length > 0) {
-		return res.status(400).send({ errors });
-	}
-
-	// If data is valid, create a new comment
-	try {
-		const comment = await commentData.create(
-			newCommentData.hotel,
-			newCommentData.author,
-			newCommentData.content
-		);
-
-		return res.send({ comment });
-	} catch (e) {
-		return res.status(e.status).send({ error: e.message });
-	}
-});
-
 router
-	.route('/comment/:commentId')
+	.route('/:hotelId/comments')
 	.get(async (req, res) => {
-		// Returns a comment/reply with _id: commentId if exists
-		let commentId = req.params.commentId;
+		let hotelId = req.params.hotelId;
 
 		// Validation
+		// Check hotel id
 		try {
-			commentId = checkId(commentId, 'commentId');
+			hotelId = checkId(hotelId, 'hotelId');
 		} catch (e) {
 			return res.status(400).send({ error: e.message });
 		}
 
+		// Get all comments of the hotel
+		try {
+			const comments = await commentData.getComments(hotelId);
+
+			return res.send({ comments });
+		} catch (e) {
+			return res.status(e.status).send({ error: e.message });
+		}
+	})
+	.post(async (req, res) => {
+		// Creates a comment on hotel with _id: hotelId
+		let hotelId = req.params.hotelId;
+		const newCommentData = req.body;
+
+		const errors = [];
+
+		// Validation
+		// Check hotel id
+		try {
+			hotelId = checkId(hotelId, 'hotelId');
+		} catch (e) {
+			errors.push(e.message);
+		}
+
+		// Check comment author id
+		try {
+			newCommentData.author = checkId(newCommentData.author, 'author');
+		} catch (e) {
+			errors.push(e.message);
+		}
+
+		// Check comment content
+		try {
+			newCommentData.content = checkString(newCommentData.content, 'content');
+		} catch (e) {
+			errors.push(e.message);
+		}
+
+		// If errors exist, return errors with 400
+		if (errors.length > 0) {
+			return res.status(400).send({ errors });
+		}
+
+		// If data is valid, create a new comment
+		try {
+			const comment = await commentData.create(
+				hotelId,
+				newCommentData.author,
+				newCommentData.content
+			);
+
+			return res.send({ comment });
+		} catch (e) {
+			console.log(e);
+			return res.status(e.status).send({ error: e.message });
+		}
+	});
+
+router
+	.route('/:hotelId/comments/:commentId')
+	.get(async (req, res) => {
+		// Returns a comment with _id: commentId if exists
+		let { hotelId, commentId } = req.params;
+
+		const errors = [];
+
+		// Validation
+		// Check hotel id
+		try {
+			hotelId = checkId(hotelId, 'hotelId');
+		} catch (e) {
+			errors.push(e.message);
+		}
+
+		// Check comment id
+		try {
+			commentId = checkId(commentId, 'commentId');
+		} catch (e) {
+			errors.push(e.message);
+		}
+
+		// If errors exist, return errors with 400
+		if (errors.length > 0) {
+			return res.status(400).send({ errors });
+		}
+
 		// Get the requested comment
 		try {
-			const comment = await commentData.get(commentId);
+			const comment = await commentData.get(hotelId, commentId);
 
 			return res.send({ comment });
 		} catch (e) {
@@ -190,12 +229,19 @@ router
 	})
 	.patch(async (req, res) => {
 		// Updates a comment/reply with _id: commentId if exists
-		let commentId = req.params.commentId;
+		let { hotelId, commentId } = req.params;
 		const updatedCommentData = req.body;
 
 		const errors = [];
 
 		// Validation
+		// Check hotel id
+		try {
+			hotelId = checkId(hotelId, 'hotelId');
+		} catch (e) {
+			errors.push(e.message);
+		}
+
 		// Check comment id
 		try {
 			commentId = checkId(commentId, 'commentId');
@@ -217,10 +263,15 @@ router
 
 		// If data is valid, update the comment
 		try {
-			const updatedComment = await commentData.update(commentId, updatedCommentData.content);
+			const updatedComment = await commentData.update(
+				hotelId,
+				commentId,
+				updatedCommentData.content
+			);
 
 			return res.send({ comment: updatedComment });
 		} catch (e) {
+			console.log(e);
 			return res.status(e.status).send({ error: e.message });
 		}
 	})
