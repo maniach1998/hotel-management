@@ -22,8 +22,8 @@ const create = async (firstName, lastName, email, password, accountType) => {
         throw new Error('Password must be a non-empty string.');
     }
 	// accountType: valid string -> either "user" or "hotel"
-	if (typeof accountType !== 'string' || (accountType !== 'User' && accountType !== 'Admin')) {
-        throw new Error('Account type must be either "user" or "admin".');
+	if (typeof accountType !== 'string' || (accountType !== 'user' && accountType !== 'hotel')) {
+        throw new Error('Account type must be either "user" or "hotel".');
     }
 
 	// Check if user already exists

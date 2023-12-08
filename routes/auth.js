@@ -1,10 +1,19 @@
+import express from 'express';
 import { Router } from 'express';
 import { userData } from '../data/index.js';
 const router = Router();
+import {
+	middlewareTwo,
+	// middlewareThree,
+	// middlewareFour,
+	// middlewareFive,
+	// middlewareSix,
+} from '../middleware.js';
+
 
 router
 	.route('/login')
-	.get(async (req, res) => {
+	.get(middlewareTwo,async (req, res) => {
 		return res.render('home/login', { title: 'Login' });
 	})
 	.post(async (req, res) => {
@@ -17,15 +26,15 @@ router
 			console.log(userExists.role)
 			if (!userExists) throw [500, 'Internal Server Error'];
 
-			// req.session.user = userExists;
+			req.session.user = userExists;
 			// if(userExists) {
 			// 	res.redirect('/');
 			// }
-
-			if (userExists.role === 'Admin') {
+			console.log(req.session.user)
+			if (userExists.role === 'hotel') {
 				return res.redirect('/admin');
 			} else {
-				return res.redirect('/home');
+				return res.redirect('/hotels');
 			}
 		} catch (e) {
 			console.log(e);
