@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import express from 'express';
+import session from 'express-session';
 import handlebars from 'express-handlebars';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
@@ -24,6 +25,16 @@ app.use('/public', staticDir);
 // Setup handlebars
 app.engine('handlebars', handlebars.engine({ defaultLayout: 'main' }));
 app.set('view engine', 'handlebars');
+
+// Setup Session
+app.use(
+	session({
+		name: 'AuthState',
+		secret: 'KNEEL BEFORE ZOD!',
+		resave: false,
+		saveUninitialized: false,
+	})
+);
 
 // Route config
 configRoutes(app);
