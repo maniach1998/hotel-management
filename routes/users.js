@@ -38,4 +38,16 @@ router
 		}
 	});
 
+
+                                       /////////////////////////// UPDATE ///////////////////////////////
+// TO BE CHANGED LATER									
+router
+	.route('/update')
+	.get(async(req,res)=>{
+		//Display update form
+	})									
+	.patch(async(req,res)=>{
+		//Post a form with the updated changes in the user details
+	})
+
 export default router;

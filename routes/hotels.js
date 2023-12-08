@@ -1,6 +1,6 @@
 import { Router } from 'express';
 const router = Router();
-
+	
 import { hotelData, commentData } from '../data/index.js';
 import { checkId, checkString } from '../helpers.js';
 
