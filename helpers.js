@@ -1,4 +1,5 @@
 import { ObjectId } from "mongodb";
+let checkin = null;
 
 function checkString(value, name) {
   if (!value || typeof value !== "string")
@@ -38,5 +39,68 @@ function checkNumber(value, name) {
 
   return value;
 }
+function checkCheckin(value, name) {
+  if (value == null) throw "All fields need to have valid values 7";
+  if (typeof value !== "string") throw "value must be a string";
+  if (value.trim().length === 0)
+    throw "value cannot be an empty string or string with just spaces";
+  let dobParts = value.split("/");
+  let month = parseFloat(dobParts[0]);
+  let day = parseFloat(dobParts[1]);
+  if (
+    (month === 1 && day < 32) ||
+    (month === 2 && day < 29) ||
+    (month === 3 && day < 32) ||
+    (month === 4 && day < 31) ||
+    (month === 5 && day < 32) ||
+    (month === 6 && day < 31) ||
+    (month === 7 && day < 32) ||
+    (month === 8 && day < 32) ||
+    (month === 9 && day < 31) ||
+    (month === 10 && day < 32) ||
+    (month === 11 && day < 31) ||
+    (month === 12 && day < 32)
+  ) {
+  } else throw "ERROR: Enter a valid checkin date";
 
-export { checkString, checkId, checkNumber };
+  const currentDate = new Date();
+
+  let dob = new Date(dobParts[2], dobParts[0] - 1, dobParts[1]);
+
+  if (currentDate > dob) throw "checkin date Cannot be in the past";
+
+  checkin = dob;
+}
+function checkCheckout(value, name) {
+  if (value == null) throw "All fields need to have valid values 7";
+  if (typeof value !== "string") throw "value must be a string";
+  if (value.trim().length === 0)
+    throw "Checkout Date cannot be an empty string or string with just spaces";
+  let dobParts = value.split("/");
+  let month = parseFloat(dobParts[0]);
+  let day = parseFloat(dobParts[1]);
+  if (
+    (month === 1 && day < 32) ||
+    (month === 2 && day < 29) ||
+    (month === 3 && day < 32) ||
+    (month === 4 && day < 31) ||
+    (month === 5 && day < 32) ||
+    (month === 6 && day < 31) ||
+    (month === 7 && day < 32) ||
+    (month === 8 && day < 32) ||
+    (month === 9 && day < 31) ||
+    (month === 10 && day < 32) ||
+    (month === 11 && day < 31) ||
+    (month === 12 && day < 32)
+  ) {
+  } else throw "ERROR: Enter a valid Checkout date";
+
+  const currentDate = new Date();
+
+  let dob = new Date(dobParts[2], dobParts[0] - 1, dobParts[1]);
+
+  if (currentDate > dob) throw "Checkout date Has to be in Future";
+  if (checkin > dob) throw "Checkout date Has to be after the Checkin Date";
+}
+
+export { checkString, checkId, checkNumber, checkCheckin, checkCheckout };

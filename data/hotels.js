@@ -1,4 +1,4 @@
-import { checkNumber } from "../helpers.js";
+import { checkCheckout, checkNumber } from "../helpers.js";
 import Hotel from "../schema/Hotel.js";
 import Room from "../schema/Room.js";
 
@@ -198,8 +198,8 @@ const bookRoom = async (hotelId, roomId, bookedBy, bookedFrom, bookedTill) => {
   roomId = checkId(roomId, "Room Id");
   bookedBy = checkId(bookedBy, "User Id");
 
-  bookedFrom = checkString(bookedFrom, "Check In");
-  bookedTill = checkString(bookedTill, "Check Out");
+  bookedFrom = checkCheckin(bookedFrom, "Check In");
+  bookedTill = checkCheckout(bookedTill, "Check Out");
 };
 
 const getAllRooms = async (hotelId) => {
