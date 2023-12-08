@@ -13,11 +13,19 @@ const create = async (hotelId, authorId, content) => {
 
 	// Check if Hotel exists
 	const hotel = await Hotel.findById(hotelId);
-	if (!hotel) throw { status: 404, message: "Hotel with this `hotelId` doesn't exist!" };
+	if (!hotel)
+		throw {
+			status: 404,
+			message: "Hotel with this `hotelId` doesn't exist!",
+		};
 
 	// Check if User exists
 	const user = await User.findById(authorId);
-	if (!user) throw { status: 404, message: "User with this `authorId` doesn't exist!" };
+	if (!user)
+		throw {
+			status: 404,
+			message: "User with this `authorId` doesn't exist!",
+		};
 
 	// Create a new Comment
 	const id = new ObjectId();
@@ -26,7 +34,11 @@ const create = async (hotelId, authorId, content) => {
 
 	// Save the Hotel with the newly added comment
 	const updatedHotel = await hotel.save();
-	if (!updatedHotel) throw { status: 500, message: "Unexpected error, couldn't create comment!" };
+	if (!updatedHotel)
+		throw {
+			status: 500,
+			message: "Unexpected error, couldn't create comment!",
+		};
 
 	const comment = updatedHotel.comments.id(id);
 
@@ -41,7 +53,11 @@ const get = async (hotelId, commentId) => {
 
 	// Check if Hotel exists
 	const hotel = await Hotel.findById(hotelId);
-	if (!hotel) throw { status: 404, message: "Hotel with this `hotelId` doesn't exist!" };
+	if (!hotel)
+		throw {
+			status: 404,
+			message: "Hotel with this `hotelId` doesn't exist!",
+		};
 
 	// Find and return the comment
 	const comment = hotel.comments.id(commentId);
@@ -60,7 +76,11 @@ const update = async (hotelId, commentId, content) => {
 
 	// Check if Hotel exists
 	const hotel = await Hotel.findById(hotelId);
-	if (!hotel) throw { status: 404, message: "Hotel with this `hotelId` doesn't exist!" };
+	if (!hotel)
+		throw {
+			status: 404,
+			message: "Hotel with this `hotelId` doesn't exist!",
+		};
 
 	// Check if comment exists
 	const comment = hotel.comments.id(commentId);
@@ -69,7 +89,11 @@ const update = async (hotelId, commentId, content) => {
 	// Update the comment with new content
 	comment.set({ content });
 	const updatedHotel = await hotel.save();
-	if (!updatedHotel) throw { status: 500, message: "Unexpected error, couldn't update comment!" };
+	if (!updatedHotel)
+		throw {
+			status: 500,
+			message: "Unexpected error, couldn't update comment!",
+		};
 
 	const updatedComment = updatedHotel.comments.id(commentId);
 
@@ -85,18 +109,30 @@ const remove = async (hotelId, commentId) => {
 
 	// Check if Hotel exists
 	const hotel = await Hotel.findById(hotelId);
-	if (!hotel) throw { status: 404, message: "Hotel with this `hotelId` doesn't exist!" };
+	if (!hotel)
+		throw {
+			status: 404,
+			message: "Hotel with this `hotelId` doesn't exist!",
+		};
 
 	// Check if comment exists
 	const comment = hotel.comments.id(commentId);
-	if (!comment) throw { status: 404, message: "Comment with this `commentId` doesn't exist!" };
+	if (!comment)
+		throw {
+			status: 404,
+			message: "Comment with this `commentId` doesn't exist!",
+		};
 
 	// Remove comment from the Hotel's comments array
 	comment.deleteOne();
 	const updatedHotel = await hotel.save();
-	if (!updatedHotel) throw { status: 500, message: "Unexpected error, couldn't delete comment!" };
+	if (!updatedHotel)
+		throw {
+			status: 500,
+			message: "Unexpected error, couldn't delete comment!",
+		};
 
-	return deletedComment;
+	return comment;
 };
 
 const getComments = async (hotelId) => {
@@ -105,7 +141,11 @@ const getComments = async (hotelId) => {
 
 	// Find hotel and return all comments
 	const hotel = await Hotel.findById(hotelId);
-	if (!hotel) throw { status: 404, message: "Hotel with this `hotelId` doesn't exist!" };
+	if (!hotel)
+		throw {
+			status: 404,
+			message: "Hotel with this `hotelId` doesn't exist!",
+		};
 
 	const comments = hotel.comments;
 
@@ -147,9 +187,22 @@ const getReplies = async (commentId) => {
 	const comment = await Comment.findById(commentId).populate([
 		{ path: 'replies', populate: { path: 'author', component: 'User' } },
 	]);
-	if (!comment) throw { status: 404, message: "Comment with this commentId doesn't exist!" };
+	if (!comment)
+		throw {
+			status: 404,
+			message: "Comment with this commentId doesn't exist!",
+		};
 
 	return comment.replies;
 };
 
-export default { create, get, update, remove, getComments, reply, removeReply, getReplies };
+export default {
+	create,
+	get,
+	update,
+	remove,
+	getComments,
+	reply,
+	removeReply,
+	getReplies,
+};

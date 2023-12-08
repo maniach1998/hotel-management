@@ -20,8 +20,13 @@ router
 	.post(async (req, res) => {
 		const newHotelData = req.body;
 
-		if (newHotelData === undefined || Object.keys(newHotelData).length === 0)
-			return res.status(400).send({ error: 'No fields provided in request body!' });
+		if (
+			newHotelData === undefined ||
+			Object.keys(newHotelData).length === 0
+		)
+			return res
+				.status(400)
+				.send({ error: 'No fields provided in request body!' });
 
 		// TODO: validate new hotel data
 		// unauthorized user -> redirect to '/error' (status code 403)
@@ -39,7 +44,10 @@ router
 		// }
 
 		try {
-			const hotel = await hotelData.create(newHotelData.name, newHotelData.manager);
+			const hotel = await hotelData.create(
+				newHotelData.name,
+				newHotelData.manager
+			);
 
 			return res.send(hotel);
 		} catch (e) {
@@ -165,7 +173,10 @@ router
 
 		// Check comment content
 		try {
-			newCommentData.content = checkString(newCommentData.content, 'content');
+			newCommentData.content = checkString(
+				newCommentData.content,
+				'content'
+			);
 		} catch (e) {
 			errors.push(e.message);
 		}
@@ -251,7 +262,10 @@ router
 
 		// Check updated content
 		try {
-			updatedCommentData.content = checkString(updatedCommentData.content, 'content');
+			updatedCommentData.content = checkString(
+				updatedCommentData.content,
+				'content'
+			);
 		} catch (e) {
 			errors.push(e.message);
 		}
@@ -277,18 +291,27 @@ router
 	})
 	.delete(async (req, res) => {
 		// Deletes a comment with _id: commentId if exists
-		let commentId = req.params.commentId;
+		let { hotelId, commentId } = req.params;
 
 		// Validation
+		// Check hotel id
+		try {
+			hotelId = checkId(hotelId, 'hotelId');
+		} catch (e) {
+			errors.push(e.message);
+		}
+
+		// Check comment id
 		try {
 			commentId = checkId(commentId, 'commentId');
 		} catch (e) {
+			console.log(e);
 			return res.status(400).send({ error: e.message });
 		}
 
 		// Delete the comment
 		try {
-			const deletedComment = await commentData.remove(commentId);
+			const deletedComment = await commentData.remove(hotelId, commentId);
 
 			return res.send({ comment: deletedComment, deleted: true });
 		} catch (e) {
