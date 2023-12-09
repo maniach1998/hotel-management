@@ -1,4 +1,4 @@
-//import { checkCheckout, checkNumber } from "../helpers.js";
+import { checkCheckout, checkId, checkNumber } from "../helpers.js";
 import Hotel from "../schema/Hotel.js";
 import Room from "../schema/Room.js";
 
@@ -9,13 +9,25 @@ const create = async (name, manager) => {
   // name: valid string
   // manager: valid ObjectId
   // manager: check if User with this ObjectId exists
-  
-  name = checkString(name, "name");
 
+  name = checkString(name, "Name");
+  manager = checkId(manager, "Manager Id");
+
+  const user = await User.findById(manager);
+  if (!user)
+    throw {
+      status: 404,
+      message: "Manager with this `authorId` doesn't exist!",
+    };
+
+  // Create new hotel
   const newHotel = new Hotel({ name, manager });
   const hotel = await newHotel.save();
-
-  if (!hotel) throw new Error("Couldn't create hotel!");
+  if (!hotel)
+    throw {
+      status: 500,
+      message: "Unexpected error, couldn't create hotel!",
+    };
 
   return hotel;
 };
@@ -25,7 +37,7 @@ const get = async (hotelId) => {
   // hotelId: valid ObjectId -> check if hotel exists
   // return hotel
   // Validation
-  hotelId = checkId(hotelId, "hotel Id");
+  hotelId = checkId(hotelId, "Hotel Id");
 
   // Find and return the hotel
   const hotel = await Hotel.findById(hotelId).populate("author");
@@ -42,15 +54,14 @@ const update = async (hotelId, name, description) => {
   // return the updated Hotel
 
   // Validation
-  hotelId = checkId(hotelId, "hotel Id");
-  name = checkString(name, "name");
-  description = checkString(description, "description");
+  hotelId = checkId(hotelId, "Hotel Id");
+  name = checkString(name, "Name");
+  description = checkString(description, "Description");
 
   // Update the hotel with new content
   const updatedhotel = await Hotel.findByIdAndUpdate(
     hotelId,
-    { name },
-    { description },
+    { name, description },
     { returnDocument: "after" }
   );
   if (!updatedhotel)
@@ -68,21 +79,17 @@ const remove = async (hotelId) => {
   // return the removed Hotel
 
   // Validation
-  hotelId = checkId(hotelId, "hotel Id");
+  hotelId = checkId(hotelId, "Hotel Id");
 
   // Find and delete the hotel
   const deletedhotel = await Hotel.findByIdAndDelete(hotelId);
   if (!deletedhotel)
     throw {
       status: 404,
-      message: "hotel with this hotelId doesn't exist!",
+      message: "Hotel with this hotelId doesn't exist!",
     };
 
-  // Remove hotelId from the Hotel's hotels array
-  await Hotel.findByIdAndUpdate(deletedhotel.hotel, {
-    $pull: { hotels: deletedhotel._id },
-  });
-  // TODO: delete all replies of a hotel
+
   return deletedhotel;
 };
 
@@ -102,13 +109,30 @@ const createRoom = async (hotelId, type, number, price) => {
   // Validation
   hotelId = checkId(hotelId, "Hotel Id");
   type = checkString(type, "Type");
-  number = checkString(number, "Number");
-  price = checkString(price, "Price");
+  number = checkNumber(number, "Number");
+  price = checkNumber(price, "Price");
 
-  const newRoom = new room({ type, number, price });
-  const room = await newRoom.save();
+  // Check if Hotel exists
+  const hotel = await Hotel.findById(hotelId);
+  if (!hotel)
+    throw {
+      status: 404,
+      message: "Hotel with this hotelId doesn't exist!",
+    };
 
-  if (!room) throw new Error("Couldn't create room!");
+  // Create new room
+  const id = new ObjectId();
+  const newRoom = { _id: id, type, number, price };
+  hotel.rooms.push(newRoom);
+
+  const updatedHotel = await hotel.save();
+  if (!updatedHotel)
+    throw {
+      status: 500,
+      message: "Unexpected error, couldn't create room!",
+    };
+
+  const room = updatedHotel.rooms.id(id);
 
   return room;
 };
@@ -121,8 +145,15 @@ const getRoom = async (hotelId, roomId) => {
   hotelId = checkId(hotelId, "Hotel Id");
   roomId = checkId(roomId, "Room Id");
 
+  const hotel = await Hotel.findById(hotelId);
+  if (!hotel)
+    throw {
+      status: 404,
+      message: "Hotel with this `hotelId` doesn't exist!",
+    };
+
   // Find and return the hotel
-  const room = await Hotel.findById(hotelId && roomId).populate("author");
+  const room = hotel.rooms.id(roomId);
   if (!room) throw { status: 404, message: "Couldn't find this room!" };
 
   return room;
@@ -145,20 +176,29 @@ const updateRoom = async (hotelId, roomId, type, number, price) => {
   number = checkNumber(number, "Number");
   price = checkNumber(price, "Price");
   // Update the hotel with new content
-  const updatedroom = await Hotel.findByIdAndUpdate(
-    hotelId && roomId,
-    { type },
-    { number },
-    { price },
-    { returnDocument: "after" }
-  );
-  if (!updatedroom)
+  const hotel = await Hotel.findById(hotelId);
+  if (!hotel)
     throw {
       status: 404,
-      message: "room with this hotelId and roomId doesn't exist!",
+      message: "Hotel with this `hotelId` doesn't exist!",
     };
 
-  return updatedroom.populate("author");
+  const room = hotel.rooms.id(roomId);
+  if (!room) throw { status: 404, message: "Couldn't find this room!" };
+
+  // Update room data
+  room.set({ type, number, price });
+
+  const updatedHotel = await hotel.save();
+  if (!updatedHotel)
+    throw {
+      status: 500,
+      message: "Unexpected error, couldn't update comment!",
+    };
+
+  const updatedroom = updatedHotel.rooms.id(roomId);
+
+  return updatedroom;
 };
 
 const removeRoom = async (hotelId, roomId) => {
@@ -169,20 +209,30 @@ const removeRoom = async (hotelId, roomId) => {
   hotelId = checkId(hotelId, "hotel Id");
   roomId = checkId(roomId, "Room Id");
 
-  // Find and delete the hotel
-  const deletedroom = await Hotel.findByIdAndDelete(hotelId);
-  if (!deletedroom)
+  const hotel = await Hotel.findById(hotelId);
+  if (!hotel)
     throw {
       status: 404,
-      message: "room with this roomId doesn't exist!",
+      message: "Hotel with this `hotelId` doesn't exist!",
     };
 
-  // Remove roomId from the room's rooms array
-  await Hotel.findByIdAndUpdate(deletedroom.hotel, {
-    $pull: { rooms: deletedroom._id },
-  });
-  // TODO: delete all replies of a hotel
-  return deletedroom;
+  const room = hotel.rooms.id(roomId);
+  if (!room)
+    throw {
+      status: 404,
+      message: "Room with this `roomId` doesn't exist!",
+    };
+
+  // Remove room from the Hotel's rooms array
+  room.deleteOne();
+  const updatedHotel = await hotel.save();
+  if (!updatedHotel)
+    throw {
+      status: 500,
+      message: "Unexpected error, couldn't delete room!",
+    };
+
+  return room;
 };
 
 const bookRoom = async (hotelId, roomId, bookedBy, bookedFrom, bookedTill) => {
@@ -207,6 +257,17 @@ const getAllRooms = async (hotelId) => {
   // TODO: get all rooms of a hotel with _id: hotelId
   // hotelId: valid ObjectId -> check if hotel exists
   // return rooms
+  hotelId = checkId(hotelId, "Hotel Id");
+
+  // Check if hotel exists
+  const hotel = await Hotel.findById(hotelId);
+  if (!hotel)
+    throw {
+      status: 404,
+      message: "Hotel with this `hotelId` doesn't exist!",
+    };
+
+  return hotel.rooms;
 };
 
 export default {
