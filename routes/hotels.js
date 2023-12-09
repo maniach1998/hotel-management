@@ -387,7 +387,7 @@ router
     }
 
     try {
-      const room = await hotelData.update(
+      const room = await hotelData.updateRoom(
         hotelId,
         roomId,
         updatedRoomData.type,
