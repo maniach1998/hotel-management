@@ -33,10 +33,6 @@ function checkNumber(value, name) {
   if (!value || value == NaN)
     throw new Error(`\`${name}\` must be a non-empty Number!`);
 
-  value = value.trim();
-  if (value.length === 0)
-    throw new Error(`\`${name}\` cannot be empty string or just spaces!`);
-
   return value;
 }
 function checkCheckin(value, name) {
