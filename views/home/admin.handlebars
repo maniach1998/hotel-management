@@ -1,0 +1,39 @@
+<h1>Admin</h1>
+
+<p>
+  Welcome {{user.firstName}} {{user.lastName}}, the time is now: {{currentTime}}. You get super secret admin access
+  since you are
+  an admin. Remember, with great power comes great responsibility!!
+</p>
+<!-- admin.handlebars -->
+
+<!-- Form for adding a hotel -->
+<form action="/admin" method="POST">
+    <label for="name">Hotel Name:</label>
+    <input type="text" id="name" name="name" required maxlength="64"><br><br>
+
+    <label for="description">Description:</label>
+    <textarea id="description" name="description" maxlength="500"></textarea><br><br>
+
+    <div id="roomTypes">
+        <div class="roomType">
+            <label for="roomType1">Room Type:</label>
+            <input type="text" id="roomType1" name="roomType[]" required>
+            <label for="numberOfRooms1">Number of Rooms:</label>
+            <input type="number" id="numberOfRooms1" name="numberOfRooms[]" min="1" required>
+        </div>
+    </div>
+
+    <button type="button" id="addRoomType">Add Room Type</button><br><br>  
+
+    <!-- Input fields for other hotel details -->
+    <!-- Add input fields for manager, rooms, comments, reviews, rating as needed -->
+
+    <input type="submit" value="Add Hotel">
+</form>
+
+
+{{!-- <a href="/protected">Protected</a> --}}
+<a href="/logout">Logout</a>
+
+<script src="/public/js/add_Hotel.js"></script>

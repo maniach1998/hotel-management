@@ -1,3 +1,5 @@
+<link rel="stylesheet" href="/public/css/register.css">
+
 <h1>Sign Up</h1>
 
 <form action="/register" method="post">
@@ -15,8 +17,20 @@
 
   <label for="confirmPassword">Confirm Password</label>
   <input id="confirmPassword" name="confirmPassword" type="password" placeholder="confirm password">
+  
+  <label for="roleInput">Account Type</label>
+  <select name="role" id="role">
+    <option value="user">User</option>
+    <option value="hotel">Hotel</option>
+  </select>
 
   <button type="submit">Register</button>
 </form>
+
+{{#if hasErrors}}
+<h3>Errors</h3>
+{{/if}}
+
+
 
 <p>Already have an account? <a href="/login">Login</a></p>
