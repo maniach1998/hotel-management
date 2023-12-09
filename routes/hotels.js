@@ -20,13 +20,8 @@ router
 	.post(async (req, res) => {
 		const newHotelData = req.body;
 
-		if (
-			newHotelData === undefined ||
-			Object.keys(newHotelData).length === 0
-		)
-			return res
-				.status(400)
-				.send({ error: 'No fields provided in request body!' });
+		if (newHotelData === undefined || Object.keys(newHotelData).length === 0)
+			return res.status(400).send({ error: 'No fields provided in request body!' });
 
 		// TODO: validate new hotel data
 		// unauthorized user -> redirect to '/error' (status code 403)
@@ -44,10 +39,7 @@ router
 		// }
 
 		try {
-			const hotel = await hotelData.create(
-				newHotelData.name,
-				newHotelData.manager
-			);
+			const hotel = await hotelData.create(newHotelData.name, newHotelData.manager);
 
 			return res.send(hotel);
 		} catch (e) {
@@ -173,10 +165,7 @@ router
 
 		// Check comment content
 		try {
-			newCommentData.content = checkString(
-				newCommentData.content,
-				'content'
-			);
+			newCommentData.content = checkString(newCommentData.content, 'content');
 		} catch (e) {
 			errors.push(e.message);
 		}
@@ -262,10 +251,7 @@ router
 
 		// Check updated content
 		try {
-			updatedCommentData.content = checkString(
-				updatedCommentData.content,
-				'content'
-			);
+			updatedCommentData.content = checkString(updatedCommentData.content, 'content');
 		} catch (e) {
 			errors.push(e.message);
 		}
@@ -320,13 +306,23 @@ router
 	});
 
 router
-	.route('/comment/:commentId/replies')
+	.route('/:hotelId/comments/:commentId/replies')
 	.get(async (req, res) => {
 		// Returns the replies of a comment with _id: commentId
 		// TODO: testing and populating
-		let commentId = req.params.commentId;
+		let { hotelId, commentId } = req.params;
+
+		const errors = [];
 
 		// Validation
+		// Check hotel id
+		try {
+			hotelId = checkId(hotelId, 'hotelId');
+		} catch (e) {
+			errors.push(e.message);
+		}
+
+		// Check comment id
 		try {
 			commentId = checkId(commentId, 'commentId');
 		} catch (e) {
@@ -335,7 +331,7 @@ router
 
 		// Get all replies of the comment
 		try {
-			const replies = await commentData.getReplies(commentId);
+			const replies = await commentData.getReplies(hotelId, commentId);
 
 			return res.send({ replies });
 		} catch (e) {
@@ -344,13 +340,13 @@ router
 	})
 	.post(async (req, res) => {
 		// TODO: create a new reply to `commentId` comment
-	})
-	.delete(async (req, res) => {
-		// TODO: delete a reply
 	});
 
 router
-	.route('/comment/:commentId/replies/:replyId')
+	.route('/:hotelId/comments/:commentId/replies/:replyId')
+	.get(async (req, res) => {
+		// TODO: get a reply from a comment
+	})
 	.patch(async (req, res) => {
 		// TODO: update reply content
 		// commentId: valid ObjectId -> check if comment exist

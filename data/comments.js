@@ -177,20 +177,28 @@ const removeReply = async (commentId, replyId) => {
 };
 
 // Returns all replies of a comment
-const getReplies = async (commentId) => {
+const getReplies = async (hotelId, commentId) => {
 	// TODO:
 	// testing
 
 	// Validation
+	hotelId = checkId(hotelId, 'Hotel Id');
 	commentId = checkId(commentId, 'Comment Id');
 
-	const comment = await Comment.findById(commentId).populate([
-		{ path: 'replies', populate: { path: 'author', component: 'User' } },
-	]);
+	// Check if Hotel exists
+	const hotel = await Hotel.findById(hotelId);
+	if (!hotel)
+		throw {
+			status: 404,
+			message: "Hotel with this `hotelId` doesn't exist!",
+		};
+
+	// Check if comment exists
+	const comment = hotel.comments.id(commentId);
 	if (!comment)
 		throw {
 			status: 404,
-			message: "Comment with this commentId doesn't exist!",
+			message: "Comment with this `commentId` doesn't exist!",
 		};
 
 	return comment.replies;
