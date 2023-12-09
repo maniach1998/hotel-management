@@ -1,6 +1,6 @@
 import { Router } from 'express';
 const router = Router();
-
+	
 import { hotelData, commentData } from '../data/index.js';
 import { checkId, checkString } from '../helpers.js';
 
@@ -27,7 +27,11 @@ router
 		// unauthorized user -> redirect to '/error' (status code 403)
 		// authorized user -> check if accountType is 'hotel' -> else redirect to '/error' (status code 403)
 		// invalid data -> re-render form with errors (status code 400)
-		// valid data -> create new hotel and redirect to '/hotels/:id' -> if failed, redirect to '/error' (status code 500)
+
+		// Validation fields-
+		// name: valid string
+		// description: valid string
+		// valid data -> create new hotel and redirect to '/hotels/:hotelId' -> if failed, redirect to '/error' (status code 500)
 
 		// try {
 		// } catch (e) {
@@ -44,10 +48,76 @@ router
 		}
 	});
 
-router.route('/:id').get(async (req, res) => {
-	// TODO: get individual hotel
-	// id: valid ObjectId -> check if hotel exists
-});
+router
+	.route('/:hotelId')
+	.get(async (req, res) => {
+		// TODO: get individual hotel with _id: hotelId
+		// hotelId: valid ObjectId -> check if hotel exists
+		// return hotel
+	})
+	.patch(async (req, res) => {
+		// TODO: update a hotel with _id: hotelId
+		// hotelId: valid ObjectId -> check if hotel exists
+		// name: valid string
+		// description: valid string
+		// return updated hotel
+	})
+	.delete(async (req, res) => {
+		// TODO: delete a hotel with _id: hotelId if exists
+		// return deleted hotel
+	});
+
+router
+	.route('/:hotelId/rooms')
+	.get(async (req, res) => {
+		// TODO: get all rooms of a hotel with _id: hotelId
+		// hotelId: valid ObjectId -> check if hotel exists
+		// return rooms
+	})
+	.post(async (req, res) => {
+		// TODO: create a new Room in hotel with _id: hotelId
+		// hotelId: valid ObjectId -> check if hotel exists
+		// Validation fields-
+		// type: valid string
+		// number: valid number
+		// price: valid number
+		// return rooms
+	});
+
+router
+	.route('/:hotelId/rooms/:roomId')
+	.get(async (req, res) => {
+		// TODO: get room with _id: roomId of a hotel with _id: hotelId
+		// hotelId: valid ObjectId -> check if hotel exists
+		// roomId: valid ObjectId -> check if room exists
+		// return room
+	})
+	.post(async (req, res) => {
+		// TODO: book room with _id: roomId in hotel with _id: hotelId
+		// hotelId: valid ObjectId -> check if hotel exists
+		// roomId: valid ObjectId -> check if room exists
+		// Validation fields-
+		// bookedBy: valid ObjectId -> check if user exists
+		// bookedFrom: valid Date -> check if date is in the future
+		// bookedTill: valid Date -> check if date is in the future AND after bookedFrom date
+		// return booking status and booked room
+	})
+	.patch(async (req, res) => {
+		// TODO: update room with _id: roomId in hotel with _id: hotelId
+		// hotelId: valid ObjectId -> check if hotel exists
+		// roomId: valid ObjectId -> check if room exists
+		// Validation fields-
+		// type: valid string (optional)
+		// number: valid number (optional)
+		// price: valid number (optional)
+		// return updated room
+	})
+	.delete(async (req, res) => {
+		// TODO: delete room with _id: roomId in hotel with _id: hotelId
+		// hotelId: valid ObjectId -> check if hotel exists
+		// roomId: valid ObjectId -> check if room exists
+		// return deleted room
+	});
 
 router.route('/comment').post(async (req, res) => {
 	// Creates a new comment

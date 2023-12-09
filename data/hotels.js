@@ -9,6 +9,7 @@ const create = async (name, manager) => {
   // name: valid string
   // manager: valid ObjectId
   // manager: check if User with this ObjectId exists
+
   name = checkString(name, "Name");
   manager = checkId(manager, "Manager Id");
 
@@ -87,6 +88,7 @@ const remove = async (hotelId) => {
       status: 404,
       message: "Hotel with this hotelId doesn't exist!",
     };
+
 
   return deletedhotel;
 };
