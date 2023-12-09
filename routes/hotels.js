@@ -234,6 +234,29 @@ router
     // hotelId: valid ObjectId -> check if hotel exists
     // roomId: valid ObjectId -> check if room exists
     // return room
+
+    let { hotelId } = req.params.hotelId;
+    let { roomId } = req.params.roomId;
+
+    try {
+      hotelId = checkId(hotelId, "hotel");
+    } catch (e) {
+      return res.status(400).send({ error: e.message });
+    }
+
+    try {
+      roomId = checkId(roomId, "room");
+    } catch (e) {
+      return res.status(400).send({ error: e.message });
+    }
+
+    try {
+      const room = await hotelData.getRoom(hotelId, roomId);
+
+      return res.send({ room });
+    } catch (e) {
+      return res.status(e.status).send({ error: e.message });
+    }
   })
   .post(async (req, res) => {
     // TODO: book room with _id: roomId in hotel with _id: hotelId
@@ -244,6 +267,70 @@ router
     // bookedFrom: valid Date -> check if date is in the future
     // bookedTill: valid Date -> check if date is in the future AND after bookedFrom date
     // return booking status and booked room
+    let { hotelId } = req.params.hotelId;
+    let { roomId } = req.params.roomId;
+    const BookingData = req.body;
+
+    const errors = [];
+
+    // Check hotel id
+    try {
+      hotelId = checkId(hotelId, "hotelId");
+    } catch (e) {
+      errors.push(e.message);
+    }
+    // Check room id
+    try {
+      roomId = checkId(roomId, "roomId");
+    } catch (e) {
+      errors.push(e.message);
+    }
+    // Check user id
+
+    try {
+      bookedBy = checkId(bookedBy, "bookedBy");
+    } catch (e) {
+      errors.push(e.message);
+    }
+
+    // Check Checkin
+    try {
+      BookingData.bookedFrom = checkCheckin(
+        updatedRoomData.bookedFrom,
+        "bookedFrom"
+      );
+    } catch (e) {
+      errors.push(e.message);
+    }
+
+    // Check Checkout
+    try {
+      BookingData.bookedTill = checkCheckout(
+        updatedRoomData.bookedTill,
+        "bookedTill"
+      );
+    } catch (e) {
+      errors.push(e.message);
+    }
+
+    // If errors exist, return errors with 400
+    if (errors.length > 0) {
+      return res.status(400).send({ errors });
+    }
+
+    try {
+      const book = await hotelData.bookRoom(
+        hotelId,
+        roomId,
+        bookedBy,
+        BookingData.bookedFrom,
+        BookingData.bookedTill
+      );
+
+      return res.send({ book });
+    } catch (e) {
+      return res.status(e.status).send({ error: e.message });
+    }
   })
   .patch(async (req, res) => {
     // TODO: update room with _id: roomId in hotel with _id: hotelId
@@ -254,12 +341,93 @@ router
     // number: valid number (optional)
     // price: valid number (optional)
     // return updated room
+    let { hotelId } = req.params.hotelId;
+    let { roomId } = req.params.roomId;
+    const updatedRoomData = req.body;
+
+    const errors = [];
+
+    // Check hotel id
+    try {
+      hotelId = checkId(hotelId, "hotelId");
+    } catch (e) {
+      errors.push(e.message);
+    }
+    // Check room id
+    try {
+      roomId = checkId(roomId, "roomId");
+    } catch (e) {
+      errors.push(e.message);
+    }
+
+    // Check type
+    try {
+      updatedRoomData.type = checkString(updatedRoomData.type, "type");
+    } catch (e) {
+      errors.push(e.message);
+    }
+
+    // Check number
+    try {
+      updatedRoomData.number = checkNumber(updatedRoomData.number, "number");
+    } catch (e) {
+      errors.push(e.message);
+    }
+
+    // Check price
+    try {
+      updatedRoomData.price = checkNumber(updatedRoomData.price, "price");
+    } catch (e) {
+      errors.push(e.message);
+    }
+
+    // If errors exist, return errors with 400
+    if (errors.length > 0) {
+      return res.status(400).send({ errors });
+    }
+
+    try {
+      const room = await hotelData.update(
+        hotelId,
+        roomId,
+        updatedRoomData.type,
+        updatedRoomData.number,
+        updatedRoomData.price
+      );
+
+      return res.send({ room });
+    } catch (e) {
+      return res.status(e.status).send({ error: e.message });
+    }
   })
   .delete(async (req, res) => {
     // TODO: delete room with _id: roomId in hotel with _id: hotelId
     // hotelId: valid ObjectId -> check if hotel exists
     // roomId: valid ObjectId -> check if room exists
     // return deleted room
+
+    let { hotelId } = req.params.hotelId;
+    let { roomId } = req.params.roomId;
+
+    try {
+      hotelId = checkId(hotelId, "hotel");
+    } catch (e) {
+      return res.status(400).send({ error: e.message });
+    }
+
+    try {
+      roomId = checkId(roomId, "room");
+    } catch (e) {
+      return res.status(400).send({ error: e.message });
+    }
+
+    try {
+      const room = await hotelData.removeRoom(hotelId, roomId);
+
+      return res.send({ room });
+    } catch (e) {
+      return res.status(e.status).send({ error: e.message });
+    }
   });
 
 router.route("/comment").post(async (req, res) => {
