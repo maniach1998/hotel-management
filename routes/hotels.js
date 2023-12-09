@@ -269,7 +269,7 @@ router
     // return booking status and booked room
     let { hotelId } = req.params.hotelId;
     let { roomId } = req.params.roomId;
-    const BookingData = req.body;
+    const bookingData = req.body;
 
     const errors = [];
 
@@ -288,15 +288,15 @@ router
     // Check user id
 
     try {
-      bookedBy = checkId(bookedBy, "bookedBy");
+      bookingData.bookedBy = checkId(bookingData.bookedBy, "bookedBy");
     } catch (e) {
       errors.push(e.message);
     }
 
     // Check Checkin
     try {
-      BookingData.bookedFrom = checkCheckin(
-        updatedRoomData.bookedFrom,
+      bookingData.bookedFrom = checkCheckin(
+        bookingData.bookedFrom,
         "bookedFrom"
       );
     } catch (e) {
@@ -305,8 +305,8 @@ router
 
     // Check Checkout
     try {
-      BookingData.bookedTill = checkCheckout(
-        updatedRoomData.bookedTill,
+      bookingData.bookedTill = checkCheckout(
+        bookingData.bookedTill,
         "bookedTill"
       );
     } catch (e) {
@@ -322,9 +322,9 @@ router
       const book = await hotelData.bookRoom(
         hotelId,
         roomId,
-        bookedBy,
-        BookingData.bookedFrom,
-        BookingData.bookedTill
+        bookingData.bookedBy,
+        bookingData.bookedFrom,
+        bookingData.bookedTill
       );
 
       return res.send({ book });
