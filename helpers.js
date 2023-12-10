@@ -27,6 +27,33 @@ function checkNumber(value, name) {
 
 	return value;
 }
+
+function checkRating(rating, name) {
+	const ratingRegex = /^[0-5]$/;
+
+	if (rating === undefined || typeof rating !== 'number')
+		throw new Error(`\`${name}\` must be non-empty number!`);
+	if (!ratingRegex.test(rating.toString()))
+		throw new Error(`\`${name}\` must be a whole number between 0 and 5!`);
+
+	return rating;
+}
+
+function calculateAverageRating(reviews) {
+	const totalReviews = reviews.length;
+
+	// If there are no reviews, return average rating as 0
+	if (totalReviews === 0) return 0;
+
+	const ratingsTotal = reviews.reduce((sum, review) => {
+		return sum + review.rating;
+	}, 0);
+
+	const averageRating = ratingsTotal / totalReviews;
+
+	return Number(averageRating.toFixed(2));
+}
+
 function checkCheckin(value, name) {
 	if (value == null) throw 'All fields need to have valid values 7';
 	if (typeof value !== 'string') throw 'value must be a string';
@@ -90,4 +117,12 @@ function checkCheckout(value, name) {
 	if (checkin > dob) throw 'Checkout date Has to be after the Checkin Date';
 }
 
-export { checkString, checkId, checkNumber, checkCheckin, checkCheckout };
+export {
+	checkString,
+	checkId,
+	checkNumber,
+	checkRating,
+	checkCheckin,
+	checkCheckout,
+	calculateAverageRating,
+};
