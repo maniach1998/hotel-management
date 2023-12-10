@@ -2,11 +2,12 @@
 body,
 h1,
 p {
-	margin: 0;
 	padding: 0;
+	margin: 10px 0;
+	font-weight: bold;
 }
 
-/* Apply styles to the signup container */
+/* Apply styles to the login container */
 .container {
 	max-width: 300px;
 	margin: 0 auto;
@@ -17,34 +18,26 @@ p {
 	box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-/* Style the signup form header */
-.container h1 {
+/* Style the login form header */
+.container h2 {
 	font-size: 24px;
 	margin-bottom: 20px;
 }
 
-/* Style form labels */
-label {
-	display: block;
-	margin-bottom: 5px;
-	font-weight: bold;
+/* Style the input fields and buttons */
+.input-container {
+	margin-bottom: 15px;
 }
 
-/* Style the input fields */
-input[type="text"],
-input[type="email"],
-input[type="password"],
-select {
+.input-field {
 	width: 100%;
 	padding: 10px;
-	margin-bottom: 15px;
 	border: 1px solid #ccc;
 	border-radius: 5px;
 	font-size: 16px;
 }
 
-/* Style the submit button */
-button[type="submit"] {
+.button {
 	width: 100%;
 	padding: 10px;
 	background-color: #007bff;
@@ -55,6 +48,12 @@ button[type="submit"] {
 	cursor: pointer;
 }
 
+/* Style the "or" separator */
+.or-separator {
+	margin: 10px 0;
+	font-weight: bold;
+}
+
 /* Style the signup link */
 p a {
 	text-decoration: none;
@@ -63,10 +62,4 @@ p a {
 
 p a:hover {
 	text-decoration: underline;
-}
-
-/* Conditional error message styles */
-h3 {
-	color: red;
-	margin-top: 20px;
 }

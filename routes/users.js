@@ -1,10 +1,10 @@
-import { Router } from 'express';
+import { Router } from "express";
 const router = Router();
 
-import { userData } from '../data/index.js';
+import { userData } from "../data/index.js";
 
 router
-	.route('/')
+	.route("/")
 	.get(async (req, res) => {
 		// only for time-being testing purposes
 		// this method will be removed later
@@ -21,7 +21,9 @@ router
 		const newUserData = req.body;
 
 		if (newUserData === undefined || Object.keys(newUserData).length === 0)
-			return res.status(400).send({ error: 'No fields provided in request body!' });
+			return res
+				.status(400)
+				.send({ error: "No fields provided in request body!" });
 
 		try {
 			const user = await userData.create(
@@ -38,16 +40,15 @@ router
 		}
 	});
 
-
-                                       /////////////////////////// UPDATE ///////////////////////////////
-// TO BE CHANGED LATER									
+/////////////////////////// UPDATE ///////////////////////////////
+// TO BE CHANGED LATER
 router
-	.route('/update')
-	.get(async(req,res)=>{
+	.route("/update")
+	.get(async (req, res) => {
 		//Display update form
-	})									
-	.patch(async(req,res)=>{
-		//Post a form with the updated changes in the user details
 	})
+	.patch(async (req, res) => {
+		//Post a form with the updated changes in the user details
+	});
 
 export default router;
