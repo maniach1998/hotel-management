@@ -1,13 +1,48 @@
-<h1>Welcome home!</h1>
+<link rel="stylesheet" href="/public/css/home.css">
 
-<p>
-  Lorem ipsum dolor sit amet consectetur, adipisicing elit. Cum beatae doloribus doloremque consequatur ex sed deleniti
-  iusto dolores non optio, sapiente voluptas adipisci voluptates facere velit, aut autem, impedit placeat.
-  Nobis tempora tempore libero ipsa eos pariatur odit ipsam sapiente excepturi hic explicabo iste alias accusantium
-  illum similique laudantium, eaque qui magnam corporis impedit maiores saepe. Doloremque, sunt iste. Natus.
-  Numquam architecto enim optio voluptatibus placeat qui suscipit aliquam rerum alias voluptatem autem rem, laboriosam
-  neque aliquid quod nulla ea maiores esse id distinctio commodi? Magnam sequi quam qui minus.
-</p>
+<header>
+  <h3>Hotel Reservation</h3>
+  <nav>
+    <ul>
+      <li><a href="/aboutus" id="aboutus-button">About Us</a></li>
+      <li><a>Contact</a></li>
+    </ul>
+  </nav>
+</header>
 
-<a href="/login">Login</a>
-<a href="/register">Sign up</a>
+<section class="hero">
+  <img
+    src="https://media.istockphoto.com/id/1089434224/photo/venetian-hotel-las-vegas-night.jpg?s=612x612&w=0&k=20&c=uV0WsS7CkoFO6UEegeLkNl5lANuwSNkdcdEmKDPe9wc="
+    alt="Luxurious Hotel">
+  <h1>Unlock Memorable Hotel Experiences with Us</h1>
+  <p>Discover the World's Finest Hotels and Book Your Dream Getaway Today</p>
+  <a href="/login" id="get-started-button" class="cta-button">Let's Get Started</a>
+</section>
+
+<section class="information">
+  <p>Did you know that The Venetian and The Palazzo complex in Las Vegas, USA, holds the record for the largest number
+    of hotel rooms in a
+    single complex, with over 7,000 rooms.</p>
+</section>
+
+<footer>
+  <ul>
+    <li><a>Privacy Policy</a></li>
+    <li><a>Terms and Conditions</a></li>
+  </ul>
+  <p>&copy; 2023 Hotel Reservation</p>
+</footer>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const getStartedButton = document.getElementById('get-started-button');
+    getStartedButton.addEventListener('click', function () {
+      window.location.href = '/login';
+    });
+    document.addEventListener('DOMContentLoaded', function () {
+      const getStartedButton = document.getElementById('aboutus-button');
+      getStartedButton.addEventListener('click', function () {
+        window.location.href = '/aboutus';
+      });
+
+</script>
