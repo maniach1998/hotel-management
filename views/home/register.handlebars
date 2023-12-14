@@ -18,10 +18,10 @@
   <label for="confirmPassword">Confirm Password</label>
   <input id="confirmPassword" name="confirmPassword" type="password" placeholder="confirm password">
 
-  <label for="roleInput">Account Type</label>
-  <select name="role" id="role">
-    <option value="User">User</option>
-    <option value="Admin">Admin</option>
+  <label for="accountType">Account Type</label>
+  <select name="accountType" id="accountType">
+    <option value="user">User</option>
+    <option value="hotel">Hotel</option>
   </select>
 
   <button type="submit">Register</button>
@@ -29,6 +29,12 @@
 
 {{#if hasErrors}}
 <h3>Errors</h3>
+
+<ul>
+  {{#each errors}}
+  <li>{{this}}</li>
+  {{/each}}
+</ul>
 {{/if}}
 
 

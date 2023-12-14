@@ -16,6 +16,13 @@
     </form>
   </div>
 </form>
+
 {{#if hasErrors}}
 <h3>Errors</h3>
+
+<ul>
+  {{#each errors}}
+  <li>{{this}}</li>
+  {{/each}}
+</ul>
 {{/if}}
