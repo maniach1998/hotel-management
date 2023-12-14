@@ -2,21 +2,25 @@ import { ObjectId } from 'mongodb';
 let checkin = null;
 
 function checkString(value, name) {
-	if (!value || typeof value !== 'string')
+	if (!value || typeof value !== "string")
 		throw new Error(`\`${name}\` must be a non-empty string!`);
 
 	value = value.trim();
-	if (value.length === 0) throw new Error(`\`${name}\` cannot be empty string or just spaces!`);
+	if (value.length === 0)
+		throw new Error(`\`${name}\` cannot be empty string or just spaces!`);
 
 	return value;
 }
 
 function checkId(id, name) {
-	if (!id || typeof id !== 'string') throw new Error(`\`${name}\` must be a non-empty string!`);
+	if (!id || typeof id !== "string")
+		throw new Error(`\`${name}\` must be a non-empty string!`);
 
 	id = id.trim();
-	if (id.length === 0) throw new Error(`\`${name}\` cannot be empty string or just spaces!`);
-	if (!ObjectId.isValid(id)) throw new Error(`\`${name}\` is not a valid ObjectId!`);
+	if (id.length === 0)
+		throw new Error(`\`${name}\` cannot be empty string or just spaces!`);
+	if (!ObjectId.isValid(id))
+		throw new Error(`\`${name}\` is not a valid ObjectId!`);
 
 	return id;
 }
@@ -26,6 +30,63 @@ function checkNumber(value, name) {
 	if (value <= 0) throw new Error(`\`${name}\` must be a positive number greater than 0!`);
 
 	return value;
+}
+
+function checkValidName(nameString, name) {
+	nameString = checkString(nameString, name);
+
+	// Regex that matches only alphabets
+	const nameRegex = /^[A-Za-z]+$/;
+
+	if (nameString.length < 2 || nameString.length > 25)
+		throw new Error(
+			`\`${name}\` should be atleast 2 characters and a max of 25 characters long!`
+		);
+
+	if (!nameRegex.test(nameString))
+		throw new Error(`\`${name}\` should only contain alphabet characters!`);
+
+	return nameString;
+}
+
+function checkValidEmail(emailAddress, name) {
+	emailAddress = checkString(emailAddress, name);
+
+	// Regex taken from https://emailregex.com/
+	const emailRegex =
+		/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+
+	if (!emailRegex.test(emailAddress))
+		throw new Error(`\`${name}\` should be a valid email address!`);
+
+	return emailAddress.toLowerCase();
+}
+
+function checkValidPassword(password, name) {
+	password = checkString(password, name);
+
+	// remove whitespace from password
+	password = password.replace(/\s+/g, "");
+
+	// Regex that matches for atleast one uppercase, atleast one number, atleast one special character, and minimum 8 characters length
+	const passwordRegex = /^(?=.*[A-Z])(?=.*[0-9])(?=.*[\W]).{8,}$/;
+
+	if (!passwordRegex.test(password))
+		throw new Error(
+			`\`${name}\` should have at least one uppercase character, at least one number and at least one special character, with a minimum of 8 characters!`
+		);
+
+	return password;
+}
+
+function checkValidAccountType(accountType, name) {
+	accountType = checkString(accountType, name);
+	accountType = accountType.toLowerCase();
+
+	if (!["user", "hotel"].includes(accountType))
+		throw new Error(`\`${name}\` must be either "user" or "hotel"!`);
+
+	return accountType;
 }
 
 function checkRating(rating, name) {
@@ -125,4 +186,8 @@ export {
 	checkCheckin,
 	checkCheckout,
 	calculateAverageRating,
+	checkValidEmail,
+	checkValidName,
+	checkValidPassword,
+	checkValidAccountType,
 };

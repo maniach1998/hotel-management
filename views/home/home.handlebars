@@ -5,7 +5,7 @@
   <nav>
     <ul>
       <li><a href="/aboutus" id="aboutus-button">About Us</a></li>
-      <li><a>Contact</a></li>
+      <li><a href="/contact" id="contact-button">Contact</a></li>
     </ul>
   </nav>
 </header>
@@ -35,14 +35,22 @@
 
 <script>
   document.addEventListener('DOMContentLoaded', function () {
+    const aboutUsButton = document.getElementById('aboutus-button');
+    const contactButton = document.getElementById('contact-button');
     const getStartedButton = document.getElementById('get-started-button');
+
+    aboutUsButton.addEventListener('click', function () {
+      window.location.href = '/aboutus';
+    });
+
+    contactButton.addEventListener('click', function () {
+      window.location.href = '/contact';
+    });
+
     getStartedButton.addEventListener('click', function () {
       window.location.href = '/login';
     });
-    document.addEventListener('DOMContentLoaded', function () {
-      const getStartedButton = document.getElementById('aboutus-button');
-      getStartedButton.addEventListener('click', function () {
-        window.location.href = '/aboutus';
-      });
+  });
+
 
 </script>

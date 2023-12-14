@@ -1,63 +1,152 @@
-import express from 'express';
-import { Router } from 'express';
-import { userData } from '../data/index.js';
+import { Router } from "express";
 const router = Router();
-import {
-	middlewareTwo,
-	// middlewareThree,
-	// middlewareFour,
-	// middlewareFive,
-	// middlewareSix,
-} from '../middleware.js';
 
+import { userData } from "../data/index.js";
+import {
+	checkValidAccountType,
+	checkValidEmail,
+	checkValidName,
+	checkValidPassword,
+} from "../helpers.js";
+import { checkAuthorized, checkForAuthRoutes } from "../middleware.js";
 
 router
-	.route('/login')
-	.get(middlewareTwo,async (req, res) => {
-		return res.render('home/login', { title: 'Login' });
+	.route("/login")
+	.get(checkForAuthRoutes, async (req, res) => {
+		return res.render("home/login", { title: "Login" });
 	})
 	.post(async (req, res) => {
-	
-		const user = req.body;
-		console.log(user.email)
-		try {
-			const userExists = await userData.loginUser(user.email, user.password);
-			console.log("inside auth email", userExists);
-			console.log(userExists.role)
-			if (!userExists) throw [500, 'Internal Server Error'];
+		const userInfo = req.body;
 
-			req.session.user = userExists;
-			// if(userExists) {
-			// 	res.redirect('/');
-			// }
-			console.log(req.session.user)
-			if (userExists.role === 'hotel') {
-				return res.redirect('/admin');
+		const errors = [];
+
+		// Validation
+		// Check email
+		try {
+			userInfo.email = checkValidEmail(userInfo.email, "email");
+		} catch (e) {
+			errors.push(e.message);
+		}
+
+		// Check password
+		try {
+			userInfo.password = checkValidPassword(userInfo.password, "password");
+		} catch (e) {
+			errors.push(e.message);
+		}
+
+		// If there are any validation errors
+		if (errors.length > 0) {
+			return res.render("home/login", {
+				title: "Login",
+				hasErrors: true,
+				errors,
+			});
+		}
+
+		// Login user
+		try {
+			const user = await userData.login(userInfo.email, userInfo.password);
+
+			// Add the user to the session
+			req.session.user = user;
+
+			// Redirect based on accountType
+			if (user.accountType === "hotel") {
+				return res.redirect("/manage");
 			} else {
-				return res.redirect('/hotels');
+				return res.redirect("/hotels");
 			}
 		} catch (e) {
-			console.log(e);
-			// const [status, message] = e;
-
-			// return res.status(status).render('login', {
-			// 	title: 'Login',
-			// 	hasErrors: true,
-			// 	errors: [message],
-			// });
+			return res.status(e.status).render("home/login", {
+				title: "Login",
+				hasErrors: true,
+				errors: [e.message],
+			});
 		}
 	});
 
 router
-	.route('/register')
-	.get(async (req, res) => {
-		return res.render('home/register', { title: 'Sign Up' });
+	.route("/register")
+	.get(checkForAuthRoutes, async (req, res) => {
+		return res.render("home/register", { title: "Sign Up" });
 	})
 	.post(async (req, res) => {
 		const newUserData = req.body;
 
-		if (newUserData === undefined || Object.keys(newUserData).length === 0)
-			return res.status(400).send({ error: 'No fields provided in request body!' });
+		const errors = [];
+
+		// Validation
+		// Check first name
+		try {
+			newUserData.firstName = checkValidName(
+				newUserData.firstName,
+				"firstName"
+			);
+		} catch (e) {
+			errors.push(e.message);
+		}
+
+		// Check last name
+		try {
+			newUserData.lastName = checkValidName(newUserData.lastName, "lastName");
+		} catch (e) {
+			errors.push(e.message);
+		}
+
+		// Check email
+		try {
+			newUserData.email = checkValidEmail(newUserData.email, "email");
+		} catch (e) {
+			errors.push(e.message);
+		}
+
+		// Check password
+		try {
+			newUserData.password = checkValidPassword(
+				newUserData.password,
+				"password"
+			);
+		} catch (e) {
+			errors.push(e.message);
+		}
+
+		// Check confirm password
+		try {
+			newUserData.confirmPassword = checkValidPassword(
+				newUserData.confirmPassword,
+				"confirmPassword"
+			);
+		} catch (e) {
+			errors.push(e.message);
+		}
+
+		// Check if passwords match
+		try {
+			if (newUserData.password !== newUserData.confirmPassword)
+				throw new Error("`Password` and `Confirm Password` don't match!");
+		} catch (e) {
+			errors.push(e.message);
+		}
+
+		// Check account type
+		try {
+			newUserData.accountType = checkValidAccountType(
+				newUserData.accountType,
+				"accountType"
+			);
+		} catch (e) {
+			errors.push(e.message);
+		}
+
+		// If there are any validation errors
+		if (errors.length > 0) {
+			return res.render("home/register", {
+				title: "Sign Up",
+				hasErrors: true,
+				errors,
+			});
+		}
 
 		try {
 			const user = await userData.create(
@@ -65,29 +154,23 @@ router
 				newUserData.lastName,
 				newUserData.email,
 				newUserData.password,
-				newUserData.role
+				newUserData.accountType
 			);
-			return res.redirect('/login')  	
-			// return res.send(user);
+
+			return res.redirect("/login");
 		} catch (e) {
-			return res.status(500).send({ error: e.message });
+			return res.status(e.status).render("home/register", {
+				title: "Sign Up",
+				hasErrors: true,
+				errors: [e.message],
+			});
 		}
-		console.log(req.body);
-		// const newUserData = req.body;
-
-		// TODO: validate register data
-		// invalid data -> re-render register form with errors (status code 400)
-		// valid data -> create user and redirect to '/login'
-
-		return res.redirect('/');
 	});
 
-router.route('/logout').get(async (req, res) => {
-	// TODO: logout user
+router.route("/logout").get(checkAuthorized, async (req, res) => {
 	// authorized user -> destroy session and render logout page
-	// unauthorized user -> redirect to '/login'
-
-	return res.json({ message: 'Logout' });
+	req.session.destroy();
+	return res.render("home/logout", { title: "Logout" });
 });
 
 export default router;

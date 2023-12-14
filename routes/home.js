@@ -8,7 +8,11 @@ router.route("/").get(async (req, res) => {
 });
 
 router.route("/aboutus").get(async (req, res) => {
-	return res.render("/aboutus", { title: "AboutUs" });
+	return res.render("home/aboutus", { title: "AboutUs" });
+});
+
+router.route("/contact").get(async (req, res) => {
+	return res.render("home/contact", { title: "Contact" });
 });
 
 //Get home page after "Admin" logs in
