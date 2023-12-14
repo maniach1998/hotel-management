@@ -19,5 +19,7 @@
 
 ### TODO
 
-- [] add middlewares for auth
-- [] setup express-session
+- [x] add middlewares for auth
+- [x] setup express-session
+- [ ] add xss
+- [ ] add checking for dates using dayjs

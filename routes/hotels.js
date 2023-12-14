@@ -10,9 +10,10 @@ router
 		try {
 			const hotels = await hotelData.getAll();
 
-			// TODO: render template for displaying all hotels
-
-			return res.send(hotels);
+			return res.render('hotels/explore', {
+				title: 'Explore Hotels',
+				hotels: hotels.map((hotel) => hotel.toJSON()),
+			});
 		} catch (e) {
 			return res.status(500).send({ error: e.message });
 		}
@@ -51,9 +52,6 @@ router
 router
 	.route('/:hotelId')
 	.get(async (req, res) => {
-		// TODO: get individual hotel with _id: hotelId
-		// hotelId: valid ObjectId -> check if hotel exists
-		// return hotel
 		let { hotelId } = req.params;
 
 		// Check hotel id
@@ -65,8 +63,13 @@ router
 
 		try {
 			const hotel = await hotelData.get(hotelId);
+			const availableRooms = hotel.rooms.filter((room) => room.bookedBy === null);
 
-			return res.send({ hotel });
+			return res.render('hotels/hotel', {
+				title: hotel.name,
+				hotel: hotel.toJSON(),
+				availableRooms,
+			});
 		} catch (e) {
 			return res.status(e.status).send({ error: e.message });
 		}

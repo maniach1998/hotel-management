@@ -1,0 +1,39 @@
+<h1>{{hotel.name}}</h1>
+
+{{#if hotel.description}}
+<p>{{hotel.description}}</p>
+{{else}}
+<p>No description</p>
+{{/if}}
+
+<p>Rating: <strong>{{hotel.rating}}⭐</strong></p>
+<p>Available Rooms: {{availableRooms.length}}</p>
+
+<h3 id="reviews">Reviews</h3>
+{{#if hotel.reviews.length}}
+{{#each hotel.reviews}}
+<div id="{{this._id}}">
+  <h5>{{this.author}}</h5>
+  <p>Rating: <strong>{{this.rating}}⭐</strong></p>
+  <p>{{this.content}}</p>
+  <p>Posted on: {{this.createdAt}}</p>
+</div>
+
+{{/each}}
+{{else}}
+<p>No reviews yet!</p>
+{{/if}}
+
+<h3 id="comments">Comments</h3>
+{{#if hotel.comments.length}}
+{{#each hotel.comments}}
+<div id="{{this._id}}">
+  <h5>{{this.author}}</h5>
+  <p>{{this.content}}</p>
+  <p>Posted on: {{this.createdAt}}</p>
+</div>
+
+{{/each}}
+{{else}}
+<p>No comments yet!</p>
+{{/if}}

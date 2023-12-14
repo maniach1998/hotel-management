@@ -1,0 +1,23 @@
+<h1>Explore hotels</h1>
+<p>A collection of all our hotels, for you to explore</p>
+
+<ul class="hotels-list">
+  {{#each hotels}}
+  <li id="{{{this._id}}}">
+    <a href="/hotels/{{this._id}}">
+      <h2>{{this.name}}</h2>
+    </a>
+
+    {{#if this.description}}
+    <p>{{this.description}}</p>
+    {{else}}
+    <p>No description</p>
+    {{/if}}
+
+    <p>Rating: <a href="/hotels/{{this._id}}/#reviews"><strong>{{this.rating}}</strong>⭐</a>,
+      <a href="/hotels/{{this._id}}/#comments">{{this.comments.length}}</a> comments
+    </p>
+
+  </li>
+  {{/each}}
+</ul>
