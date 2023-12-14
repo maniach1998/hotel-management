@@ -1,4 +1,4 @@
-import { ObjectId } from "mongodb";
+import { ObjectId } from 'mongodb';
 let checkin = null;
 
 function checkString(value, name) {
@@ -26,10 +26,8 @@ function checkId(id, name) {
 }
 
 function checkNumber(value, name) {
-	if (!value || typeof value !== "number")
-		throw new Error(`\`${name}\` must be non-empty number!`);
-	if (value <= 0)
-		throw new Error(`\`${name}\` must be a positive number greater than 0!`);
+	if (!value || typeof value !== 'number') throw new Error(`\`${name}\` must be non-empty number!`);
+	if (value <= 0) throw new Error(`\`${name}\` must be a positive number greater than 0!`);
 
 	return value;
 }
@@ -94,7 +92,7 @@ function checkValidAccountType(accountType, name) {
 function checkRating(rating, name) {
 	const ratingRegex = /^[0-5]$/;
 
-	if (rating === undefined || typeof rating !== "number")
+	if (rating === undefined || typeof rating !== 'number')
 		throw new Error(`\`${name}\` must be non-empty number!`);
 	if (!ratingRegex.test(rating.toString()))
 		throw new Error(`\`${name}\` must be a whole number between 0 and 5!`);
@@ -118,11 +116,10 @@ function calculateAverageRating(reviews) {
 }
 
 function checkCheckin(value, name) {
-	if (value == null) throw "All fields need to have valid values 7";
-	if (typeof value !== "string") throw "value must be a string";
-	if (value.trim().length === 0)
-		throw "value cannot be an empty string or string with just spaces";
-	let dobParts = value.split("/");
+	if (value == null) throw 'All fields need to have valid values 7';
+	if (typeof value !== 'string') throw 'value must be a string';
+	if (value.trim().length === 0) throw 'value cannot be an empty string or string with just spaces';
+	let dobParts = value.split('/');
 	let month = parseFloat(dobParts[0]);
 	let day = parseFloat(dobParts[1]);
 	if (
@@ -139,22 +136,22 @@ function checkCheckin(value, name) {
 		(month === 11 && day < 31) ||
 		(month === 12 && day < 32)
 	) {
-	} else throw "ERROR: Enter a valid checkin date";
+	} else throw 'ERROR: Enter a valid checkin date';
 
 	const currentDate = new Date();
 
 	let dob = new Date(dobParts[2], dobParts[0] - 1, dobParts[1]);
 
-	if (currentDate > dob) throw "checkin date Cannot be in the past";
+	if (currentDate > dob) throw 'checkin date Cannot be in the past';
 
 	checkin = dob;
 }
 function checkCheckout(value, name) {
-	if (value == null) throw "All fields need to have valid values 7";
-	if (typeof value !== "string") throw "value must be a string";
+	if (value == null) throw 'All fields need to have valid values 7';
+	if (typeof value !== 'string') throw 'value must be a string';
 	if (value.trim().length === 0)
-		throw "Checkout Date cannot be an empty string or string with just spaces";
-	let dobParts = value.split("/");
+		throw 'Checkout Date cannot be an empty string or string with just spaces';
+	let dobParts = value.split('/');
 	let month = parseFloat(dobParts[0]);
 	let day = parseFloat(dobParts[1]);
 	if (
@@ -171,14 +168,14 @@ function checkCheckout(value, name) {
 		(month === 11 && day < 31) ||
 		(month === 12 && day < 32)
 	) {
-	} else throw "ERROR: Enter a valid Checkout date";
+	} else throw 'ERROR: Enter a valid Checkout date';
 
 	const currentDate = new Date();
 
 	let dob = new Date(dobParts[2], dobParts[0] - 1, dobParts[1]);
 
-	if (currentDate > dob) throw "Checkout date Has to be in Future";
-	if (checkin > dob) throw "Checkout date Has to be after the Checkin Date";
+	if (currentDate > dob) throw 'Checkout date Has to be in Future';
+	if (checkin > dob) throw 'Checkout date Has to be after the Checkin Date';
 }
 
 export {
