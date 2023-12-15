@@ -1,5 +1,10 @@
 import { ObjectId } from 'mongodb';
-import { checkCheckout, checkId, checkNumber, checkString } from '../helpers.js';
+import {
+	checkCheckout,
+	checkId,
+	checkNumber,
+	checkString,
+} from '../helpers.js';
 import Hotel from '../schema/Hotel.js';
 import User from '../schema/User.js';
 
@@ -93,6 +98,29 @@ const remove = async (hotelId) => {
 
 const getAll = async () => {
 	const hotels = await Hotel.find().populate('manager');
+
+	return hotels;
+};
+
+const getAllManaged = async (managerId) => {
+	managerId = checkId(managerId, 'Manager Id');
+
+	// Check if User exists
+	const user = await User.findById(managerId);
+	if (!user)
+		throw {
+			status: 404,
+			message: "User with this `managerId` doesn't exist!",
+		};
+
+	// Check if user is not a manager ("hotel" account type)
+	if (user.accountType !== 'hotel')
+		throw {
+			status: 403,
+			message: "Manager with this `managerId` doesn't exist!",
+		};
+
+	const hotels = await Hotel.find({ manager: managerId });
 
 	return hotels;
 };
@@ -265,7 +293,7 @@ const getAllRooms = async (hotelId) => {
 			message: "Hotel with this `hotelId` doesn't exist!",
 		};
 
-	return hotel.rooms;
+	return { hotel, rooms: hotel.rooms };
 };
 
 export default {
@@ -274,6 +302,7 @@ export default {
 	update,
 	remove,
 	getAll,
+	getAllManaged,
 	createRoom,
 	getRoom,
 	updateRoom,

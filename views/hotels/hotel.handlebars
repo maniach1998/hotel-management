@@ -9,6 +9,10 @@
 <p>Rating: <strong>{{hotel.rating}}⭐</strong></p>
 <p>Available Rooms: {{availableRooms.length}}</p>
 
+{{#if availableRooms.length}}
+<button onclick="handleClick('{{hotel._id}}')">Check availability</button>
+{{/if}}
+
 <h3 id="reviews">Reviews</h3>
 {{#if hotel.reviews.length}}
 {{#each hotel.reviews}}
@@ -37,3 +41,9 @@
 {{else}}
 <p>No comments yet!</p>
 {{/if}}
+
+<script>
+  function handleClick(id) {
+    window.location.href = `/hotels/${id}/rooms`
+  }
+</script>

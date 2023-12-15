@@ -1,0 +1,17 @@
+<h1>{{hotel.name}}</h1>
+
+<h2>Rooms at {{hotel.name}}</h2>
+<p>See all the rooms that are available at {{hotel.name}}</p>
+
+{{#each rooms as |room|}}
+<div id="{{room._id}}">
+  <p>Name: {{room.type}}</p>
+  <p>Price (per night): ${{room.price}}</p>
+  
+  {{#if room.bookedBy}}
+  <p>Not available</p>
+  {{else}}
+  <button>Book room</button>
+  {{/if}}
+</div>
+{{/each}}
