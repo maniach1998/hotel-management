@@ -1,19 +1,19 @@
-import { Router } from "express";
+import { Router } from 'express';
 const router = Router();
 
-import { userData } from "../data/index.js";
+import { userData } from '../data/index.js';
 import {
 	checkValidAccountType,
 	checkValidEmail,
 	checkValidName,
 	checkValidPassword,
-} from "../helpers.js";
-import { checkAuthorized, checkForAuthRoutes } from "../middleware.js";
+} from '../helpers.js';
+import { checkAuthorized, checkForAuthRoutes } from '../middleware.js';
 
 router
-	.route("/login")
+	.route('/login')
 	.get(checkForAuthRoutes, async (req, res) => {
-		return res.render("home/login", { title: "Login" });
+		return res.render('home/login', { title: 'Login' });
 	})
 	.post(async (req, res) => {
 		const userInfo = req.body;
@@ -23,22 +23,22 @@ router
 		// Validation
 		// Check email
 		try {
-			userInfo.email = checkValidEmail(userInfo.email, "email");
+			userInfo.email = checkValidEmail(userInfo.email, 'email');
 		} catch (e) {
 			errors.push(e.message);
 		}
 
 		// Check password
 		try {
-			userInfo.password = checkValidPassword(userInfo.password, "password");
+			userInfo.password = checkValidPassword(userInfo.password, 'password');
 		} catch (e) {
 			errors.push(e.message);
 		}
 
 		// If there are any validation errors
 		if (errors.length > 0) {
-			return res.render("home/login", {
-				title: "Login",
+			return res.render('home/login', {
+				title: 'Login',
 				hasErrors: true,
 				errors,
 			});
@@ -52,14 +52,14 @@ router
 			req.session.user = user;
 
 			// Redirect based on accountType
-			if (user.accountType === "hotel") {
-				return res.redirect("/manage");
+			if (user.accountType === 'hotel') {
+				return res.redirect('/manage');
 			} else {
-				return res.redirect("/hotels");
+				return res.redirect('/hotels');
 			}
 		} catch (e) {
-			return res.status(e.status).render("home/login", {
-				title: "Login",
+			return res.status(e.status).render('home/login', {
+				title: 'Login',
 				hasErrors: true,
 				errors: [e.message],
 			});
@@ -67,9 +67,9 @@ router
 	});
 
 router
-	.route("/register")
+	.route('/register')
 	.get(checkForAuthRoutes, async (req, res) => {
-		return res.render("home/register", { title: "Sign Up" });
+		return res.render('home/register', { title: 'Sign Up' });
 	})
 	.post(async (req, res) => {
 		const newUserData = req.body;
@@ -79,34 +79,28 @@ router
 		// Validation
 		// Check first name
 		try {
-			newUserData.firstName = checkValidName(
-				newUserData.firstName,
-				"firstName"
-			);
+			newUserData.firstName = checkValidName(newUserData.firstName, 'firstName');
 		} catch (e) {
 			errors.push(e.message);
 		}
 
 		// Check last name
 		try {
-			newUserData.lastName = checkValidName(newUserData.lastName, "lastName");
+			newUserData.lastName = checkValidName(newUserData.lastName, 'lastName');
 		} catch (e) {
 			errors.push(e.message);
 		}
 
 		// Check email
 		try {
-			newUserData.email = checkValidEmail(newUserData.email, "email");
+			newUserData.email = checkValidEmail(newUserData.email, 'email');
 		} catch (e) {
 			errors.push(e.message);
 		}
 
 		// Check password
 		try {
-			newUserData.password = checkValidPassword(
-				newUserData.password,
-				"password"
-			);
+			newUserData.password = checkValidPassword(newUserData.password, 'password');
 		} catch (e) {
 			errors.push(e.message);
 		}
@@ -115,7 +109,7 @@ router
 		try {
 			newUserData.confirmPassword = checkValidPassword(
 				newUserData.confirmPassword,
-				"confirmPassword"
+				'confirmPassword'
 			);
 		} catch (e) {
 			errors.push(e.message);
@@ -131,18 +125,15 @@ router
 
 		// Check account type
 		try {
-			newUserData.accountType = checkValidAccountType(
-				newUserData.accountType,
-				"accountType"
-			);
+			newUserData.accountType = checkValidAccountType(newUserData.accountType, 'accountType');
 		} catch (e) {
 			errors.push(e.message);
 		}
 
 		// If there are any validation errors
 		if (errors.length > 0) {
-			return res.render("home/register", {
-				title: "Sign Up",
+			return res.render('home/register', {
+				title: 'Sign Up',
 				hasErrors: true,
 				errors,
 			});
@@ -157,20 +148,20 @@ router
 				newUserData.accountType
 			);
 
-			return res.redirect("/login");
+			return res.redirect('/login');
 		} catch (e) {
-			return res.status(e.status).render("home/register", {
-				title: "Sign Up",
+			return res.status(e.status).render('home/register', {
+				title: 'Sign Up',
 				hasErrors: true,
 				errors: [e.message],
 			});
 		}
 	});
 
-router.route("/logout").get(checkAuthorized, async (req, res) => {
+router.route('/logout').get(checkAuthorized, async (req, res) => {
 	// authorized user -> destroy session and render logout page
 	req.session.destroy();
-	return res.render("home/logout", { title: "Logout" });
+	return res.render('home/logout', { title: 'Logout' });
 });
 
 export default router;
