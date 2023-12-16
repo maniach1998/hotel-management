@@ -6,11 +6,25 @@ p {
 	padding: 0;
 }
 
+body{
+	background-color: rgb(190, 239, 255);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 100vh;
+}
+
+.form{
+	padding: 20px 40px;
+	background-color: white;
+} 
+
+
 /* Apply styles to the signup container */
 .container {
 	max-width: 300px;
 	margin: 0 auto;
-	padding: 20px;
+	padding: 60px;
 	text-align: center;
 	background-color: #f2f2f2;
 	border-radius: 5px;
@@ -21,6 +35,58 @@ p {
 .container h1 {
 	font-size: 24px;
 	margin-bottom: 20px;
+}
+
+.input-field {
+	width: 100%;
+	padding: 10px;
+	border: 1px solid #ccc;
+	border-radius: 5px;
+	font-size: 16px;
+	margin: 5px auto;
+	box-sizing: border-box;
+}
+
+.input-container {
+	margin-bottom: 10px;
+	padding-bottom: 20px;
+	position: relative;
+}
+
+.input-container label {
+	display: inline-block;
+	margin-bottom: 5px;
+}
+
+.input-container.error .error-message{
+	visibility: visible;
+
+}
+
+.input-container input:focus {
+	outline: 0;
+	border-color: grey;
+}
+
+.input-container.success input {
+	border-color: green;
+}
+
+.input-container.error input {
+	border-color: red;
+}
+
+.input-container .error-message{
+	color: #e74c3c;
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	visibility: hidden;
+}
+
+.input-container.error .error-message  {
+	visibility: visible;
+	font-size: x-small;
 }
 
 /* Style form labels */

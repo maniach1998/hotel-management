@@ -1,28 +1,25 @@
 <link rel="stylesheet" href="public/css/login.css">
 
-<form action="/login" method="post">
-  <div class="container">
-    <h2>Welcome</h2>
-    <form action="/login" method="post">
-      <div class="input-container">
-        <input type="email" name="email" placeholder="Email" class="input-field">
-      </div>
-      <div class="input-container">
-        <input type="password" name="password" placeholder="Password" class="input-field">
-      </div>
-      <input type="submit" value="Login" class="button signup-button">
-      <div class="or-separator">or</div>
-      <input type="button" value="Sign Up" onclick="window.location.href='/register';" class="button signup-button">
+    <form action="/login" id="form" method="post">
+        <div class="container">
+            <h2>Welcome</h2>
+            <!-- Email -->
+            <div class="input-container email-container">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" placeholder="Email" class="input-field">
+                <small class="error-message">Error message</small>
+            </div>
+            <!-- Password -->
+            <div class="input-container password-container">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" placeholder="Password" class="input-field">
+                <small class="error-message">Error message</small>
+            </div>
+            <!-- Submit Button -->
+            <input type="submit" value="Login" class="button">
+            <div class="or-separator">or</div>
+            <input type="button" value="Sign Up" onclick="window.location.href='/register';" class="button">
+        </div>
     </form>
-  </div>
-</form>
-
-{{#if hasErrors}}
-<h3>Errors</h3>
-
-<ul>
-  {{#each errors}}
-  <li>{{this}}</li>
-  {{/each}}
-</ul>
-{{/if}}
+    
+<script src="/public/js/client_side_validation_login.js"></script>

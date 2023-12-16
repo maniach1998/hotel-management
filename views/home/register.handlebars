@@ -1,42 +1,51 @@
 <link rel="stylesheet" href="/public/css/register.css">
 
-<h1>Sign Up</h1>
+<div class="container">
+    <h1>Sign Up</h1>
+    <form action="/register" id="form" method="post">
+        <!-- Email -->
+        <div class="input-container">
+            <label for="email">Email address</label>
+            <input type="email" id="email" name="email" placeholder="johndoe@gmail.com" class="input-field">
+            <small class="error-message">Error message</small>
+        </div>
+        <!-- First Name -->
+        <div class="input-container">
+            <label for="firstName">First Name</label>
+            <input type="text" id="firstName" name="firstName" placeholder="John" class="input-field">
+            <small class="error-message">Error message</small>
+        </div>
+        <!-- Last Name -->
+        <div class="input-container">
+            <label for="lastName">Last Name</label>
+            <input type="text" id="lastName" name="lastName" placeholder="Doe" class="input-field">
+            <small class="error-message">Error message</small>
+        </div>
+        <!-- Password -->
+        <div class="input-container">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" placeholder="Password" class="input-field">
+            <small class="error-message">Error message</small>
+        </div>
+        <!-- Confirm Password -->
+        <div class="input-container">
+            <label for="confirmPassword">Confirm Password</label>
+            <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm Password" class="input-field">
+            <small class="error-message">Error message</small>
+        </div>
+        <!-- Account Type -->
+        <div class="input-container">
+            <label for="accountType">Account Type</label>
+            <select id="accountType" name="accountType">
+                <option value="user">User</option>
+                <option value="hotel">Hotel</option>
+            </select>
+            <small class="error-message">Error message</small>
+        </div>
+        <!-- Submit Button -->
+        <button type="submit">Register</button>
+    </form>
+    <p>Already have an account? <a href="/login">Login</a></p>
+</div>
 
-<form action="/register" method="post">
-  <label for="email">Email address</label>
-  <input id="email" name="email" type="email" placeholder="johndoe@gmail.com">
-
-  <label for="firstName">First Name</label>
-  <input id="firstName" name="firstName" type="text" placeholder="John">
-
-  <label for="lastName">Last Name</label>
-  <input id="lastName" name="lastName" type="text" placeholder="Doe">
-
-  <label for="password">Password</label>
-  <input id="password" name="password" type="password" placeholder="password">
-
-  <label for="confirmPassword">Confirm Password</label>
-  <input id="confirmPassword" name="confirmPassword" type="password" placeholder="confirm password">
-
-  <label for="accountType">Account Type</label>
-  <select name="accountType" id="accountType">
-    <option value="user">User</option>
-    <option value="hotel">Hotel</option>
-  </select>
-
-  <button type="submit">Register</button>
-</form>
-
-{{#if hasErrors}}
-<h3>Errors</h3>
-
-<ul>
-  {{#each errors}}
-  <li>{{this}}</li>
-  {{/each}}
-</ul>
-{{/if}}
-
-
-
-<p>Already have an account? <a href="/login">Login</a></p>
+<script src="/public/js/client_side_validation_register.js"></script>
