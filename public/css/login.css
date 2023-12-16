@@ -7,11 +7,25 @@ p {
 	font-weight: bold;
 }
 
+body{
+	background-color: rgb(190, 239, 255);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 100vh;
+}
+
+.form{
+	padding: 20px 40px;
+	background-color: white;
+} 
+
+
 /* Apply styles to the login container */
 .container {
 	max-width: 300px;
 	margin: 0 auto;
-	padding: 20px;
+	padding: 60px;
 	text-align: center;
 	background-color: #f2f2f2;
 	border-radius: 5px;
@@ -26,7 +40,7 @@ p {
 
 /* Style the input fields and buttons */
 .input-container {
-	margin-bottom: 15px;
+	margin-bottom: 30px;
 }
 
 .input-field {
@@ -35,6 +49,55 @@ p {
 	border: 1px solid #ccc;
 	border-radius: 5px;
 	font-size: 16px;
+	margin: 5px auto;
+	box-sizing: border-box;
+}
+
+.email-container {
+    margin-bottom: 20px;
+}
+
+.password-container {
+    margin-top: 20px; 
+}
+
+.input-container {
+	margin-bottom: 10px;
+	padding-bottom: 20px;
+	position: relative;
+}
+
+.input-container label {
+	display: inline-block;
+	margin-bottom: 5px;
+}
+
+.input-container input:focus {
+	outline: 0;
+	border-color: grey;
+}
+
+.input-container.success input {
+	border-color: green;
+}
+
+.input-container.error input {
+	border-color: red;
+}
+
+.input-container .error-message{
+	color: #e74c3c;
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	visibility: hidden;
+}
+
+.input-container.error .error-message  {
+	position: absolute;
+	bottom: -20px;
+	visibility: visible;
+	font-size: x-small;
 }
 
 .button {
@@ -46,6 +109,11 @@ p {
 	border-radius: 5px;
 	font-size: 16px;
 	cursor: pointer;
+	margin-top: 15px;
+}
+
+.button:hover {
+    background-color: #0056b3;
 }
 
 /* Style the "or" separator */
