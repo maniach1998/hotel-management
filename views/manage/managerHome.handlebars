@@ -1,0 +1,29 @@
+<h1>Welcome back, {{manager.firstName}}!</h1>
+
+<h2>Hotels you manage</h2>
+<button onclick="createHotel()">Create hotel</button>
+
+{{#if hotels.length}}
+{{#each hotels as |hotel|}}
+  <li id="{{{hotel._id}}}">
+    <a href="/hotels/{{hotel._id}}">
+      <h2>{{hotel.name}}</h2>
+    </a>
+
+    {{#if hotel.description}}
+    <p>{{hotel.description}}</p>
+    {{else}}
+    <p>No description</p>
+    {{/if}}
+  </li>
+{{/each}}
+
+{{else}}
+<p>You don't own any hotels yet. Create one by pressing the button above!</p>
+{{/if}}
+
+<script>
+  function createHotel() {
+    window.location.href = '/manage/create'
+  }
+</script>

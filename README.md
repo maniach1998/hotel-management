@@ -1,23 +1,26 @@
 ### User data and routes
 
-- Dhanesh
-- Dhruvin
+-   Dhanesh
+-   Dhruvin
 
 ### Hotel, comments and reviews data and routes
 
-- Kshitij
-- Manas
+-   Kshitij
+-   Manas
 
 ### Bookings data and routes
 
-- Chen
-- Manas
+-   Chen
+-   Manas
 
 ### Templating
 
-- Everyone
+-   Everyone
 
 ### TODO
 
-- [] add middlewares for auth
-- [] setup express-session
+-   [x] add middlewares for auth
+-   [x] setup express-session
+-   [ ] add xss
+-   [ ] add checking for dates using dayjs
+-   [ ] allow users to post reviews only once per hotel

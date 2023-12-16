@@ -10,9 +10,10 @@ router
 		try {
 			const hotels = await hotelData.getAll();
 
-			// TODO: render template for displaying all hotels
-
-			return res.send(hotels);
+			return res.render('hotels/explore', {
+				title: 'Explore Hotels',
+				hotels: hotels.map((hotel) => hotel.toJSON()),
+			});
 		} catch (e) {
 			return res.status(500).send({ error: e.message });
 		}
@@ -20,8 +21,13 @@ router
 	.post(async (req, res) => {
 		const newHotelData = req.body;
 
-		if (newHotelData === undefined || Object.keys(newHotelData).length === 0)
-			return res.status(400).send({ error: 'No fields provided in request body!' });
+		if (
+			newHotelData === undefined ||
+			Object.keys(newHotelData).length === 0
+		)
+			return res
+				.status(400)
+				.send({ error: 'No fields provided in request body!' });
 
 		// TODO: validate new hotel data
 		// unauthorized user -> redirect to '/error' (status code 403)
@@ -39,7 +45,10 @@ router
 		// }
 
 		try {
-			const hotel = await hotelData.create(newHotelData.name, newHotelData.manager);
+			const hotel = await hotelData.create(
+				newHotelData.name,
+				newHotelData.manager
+			);
 
 			return res.send(hotel);
 		} catch (e) {
@@ -51,9 +60,6 @@ router
 router
 	.route('/:hotelId')
 	.get(async (req, res) => {
-		// TODO: get individual hotel with _id: hotelId
-		// hotelId: valid ObjectId -> check if hotel exists
-		// return hotel
 		let { hotelId } = req.params;
 
 		// Check hotel id
@@ -65,8 +71,15 @@ router
 
 		try {
 			const hotel = await hotelData.get(hotelId);
+			const availableRooms = hotel.rooms.filter(
+				(room) => room.bookedBy === null
+			);
 
-			return res.send({ hotel });
+			return res.render('hotels/hotel', {
+				title: hotel.name,
+				hotel: hotel.toJSON(),
+				availableRooms,
+			});
 		} catch (e) {
 			return res.status(e.status).send({ error: e.message });
 		}
@@ -98,7 +111,10 @@ router
 
 		// Check description
 		try {
-			updatedHotelData.description = checkString(updatedHotelData.description, 'description');
+			updatedHotelData.description = checkString(
+				updatedHotelData.description,
+				'description'
+			);
 		} catch (e) {
 			errors.push(e.message);
 		}
@@ -160,9 +176,14 @@ router
 		}
 
 		try {
-			const rooms = await hotelData.getAllRooms(hotelId);
+			const { hotel, rooms } = await hotelData.getAllRooms(hotelId);
+			const parsedRooms = rooms.map((room) => room.toJSON());
 
-			return res.send({ rooms });
+			return res.render('hotels/rooms/allRooms', {
+				title: `Rooms at ${hotel.name}`,
+				hotel: hotel.toJSON(),
+				rooms: parsedRooms,
+			});
 		} catch (e) {
 			return res.status(e.status).send({ error: e.message });
 		}
@@ -288,14 +309,20 @@ router
 
 		// Check Checkin
 		try {
-			bookingData.bookedFrom = checkCheckin(bookingData.bookedFrom, 'bookedFrom');
+			bookingData.bookedFrom = checkCheckin(
+				bookingData.bookedFrom,
+				'bookedFrom'
+			);
 		} catch (e) {
 			errors.push(e.message);
 		}
 
 		// Check Checkout
 		try {
-			bookingData.bookedTill = checkCheckout(bookingData.bookedTill, 'bookedTill');
+			bookingData.bookedTill = checkCheckout(
+				bookingData.bookedTill,
+				'bookedTill'
+			);
 		} catch (e) {
 			errors.push(e.message);
 		}
@@ -355,7 +382,10 @@ router
 
 		// Check number
 		try {
-			updatedRoomData.number = checkNumber(updatedRoomData.number, 'number');
+			updatedRoomData.number = checkNumber(
+				updatedRoomData.number,
+				'number'
+			);
 		} catch (e) {
 			errors.push(e.message);
 		}
@@ -461,7 +491,10 @@ router
 
 		// Check comment content
 		try {
-			newCommentData.content = checkString(newCommentData.content, 'content');
+			newCommentData.content = checkString(
+				newCommentData.content,
+				'content'
+			);
 		} catch (e) {
 			errors.push(e.message);
 		}
@@ -547,7 +580,10 @@ router
 
 		// Check updated content
 		try {
-			updatedCommentData.content = checkString(updatedCommentData.content, 'content');
+			updatedCommentData.content = checkString(
+				updatedCommentData.content,
+				'content'
+			);
 		} catch (e) {
 			errors.push(e.message);
 		}

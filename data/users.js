@@ -1,126 +1,114 @@
 import bcrypt from 'bcrypt';
 
 import User from '../schema/User.js';
+import {
+	checkId,
+	checkValidAccountType,
+	checkValidEmail,
+	checkValidName,
+	checkValidPassword,
+} from '../helpers.js';
 
 const create = async (firstName, lastName, email, password, accountType) => {
-	// TODO: add validation for fields
-	const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-	// firstName: valid string
-	if (typeof firstName !== 'string' || firstName.trim() === '') {
-        throw new Error('First name must be a non-empty string.');
-	}
-	// lastName: valid string
-	if (typeof lastName !== 'string' || lastName.trim() === '') {
-        throw new Error('Last name must be a non-empty string.');
-	}
-	// email: valid string -> must be a valid email
-	if (typeof email !== 'string' || !emailRegex.test(email)) {
-        throw new Error('Please provide a valid email address.');
-    }
-	// password: valid string
-	if (typeof password !== 'string' || password.trim() === '') {
-        throw new Error('Password must be a non-empty string.');
-    }
-	// accountType: valid string -> either "user" or "hotel"
-	if (typeof accountType !== 'string' || (accountType !== 'user' && accountType !== 'hotel')) {
-        throw new Error('Account type must be either "user" or "hotel".');
-    }
+	// Validation
+	firstName = checkValidName(firstName, 'First name');
+	lastName = checkValidName(lastName, 'Last Name');
+	email = checkValidEmail(email, 'Email Address');
+	password = checkValidPassword(password, 'Password');
+	accountType = checkValidAccountType(accountType, 'Account Type');
 
 	// Check if user already exists
 	const userExists = await User.findOne({ email });
-	if (userExists) throw new Error('User with this email already exists!');
+	if (userExists) throw { status: 403, message: 'User with this `email` already exists!' };
 
 	// Hash password
 	const salt = await bcrypt.genSalt(10);
 	const hashedPassword = await bcrypt.hash(password, salt);
 
 	// Create new user
-	const newUser = new User({ firstName, lastName, email, password: hashedPassword, accountType });
+	const newUser = new User({
+		firstName,
+		lastName,
+		email,
+		password: hashedPassword,
+		accountType,
+	});
 	const user = await newUser.save();
-
-	if (!user) throw new Error("Couldn't create user!");
+	if (!user) throw { status: 500, message: "Couldn't create user!" };
 
 	return user;
 };
 
-                                //////////// LOGIN  /////////////////
-const loginUser = async(email, password) => {
-	//const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-	// Valid Email check
-	// if (typeof email !== 'string' || !emailRegex.test(email)) {
-    //     throw new Error('Please provide a valid email address.');
-    // }
-	//TODO: Validation for password
+const login = async (email, password) => {
+	// Validation
+	email = checkValidEmail(email, 'Email Address');
+	password = checkValidPassword(password, 'Password');
 
 	// Check if user already exists
 	const userExists = await User.findOne({ email });
-	if (!userExists) throw [400, 'Either the email address or password is invalid!'];
+	if (!userExists)
+		throw {
+			status: 400,
+			message: 'Either the email address or password is invalid!',
+		};
 
-	//Check if password matches
+	// Check if password matches
 	const matchPasswords = await bcrypt.compare(password, userExists.password);
-	if (!matchPasswords) throw [400, 'Either the email address or password is invalid!'];
+	if (!matchPasswords)
+		throw {
+			status: 400,
+			message: 'Either the email address or password is invalid!',
+		};
 
 	return {
+		_id: userExists._id,
 		firstName: userExists.firstName,
 		lastName: userExists.lastName,
 		emailAddress: userExists.email,
-		role: userExists.accountType,
+		accountType: userExists.accountType,
 	};
-}
+};
 
 const update = async (id, firstName, lastName, email, password) => {
-	// TODO: add validation for fields
-	const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-	// id: valid ObjectId -> check if User exists
-	if (!ObjectId.isValid(id)) throw 'invalid object ID';
-    // Check if user exists
-    const existingUser = await User.findById(id);
-    if (!existingUser) {
-        throw new Error('User not found.');
-    }
-	// firstName: valid string
-	if (typeof firstName !== 'string' || firstName.trim() === '') {
-        throw new Error('First name must be a non-empty string.');
-    }
-	// lastName: valid string
-	if (typeof lastName !== 'string' || lastName.trim() === '') {
-        throw new Error('Last name must be a non-empty string.');
-    }
-	// email: valid string -> must be a valid email -> check if User with this email already exists
-	if (typeof email !== 'string' || !emailRegex.test(email)) {
-        throw new Error('Please provide a valid email address.');
-    }
+	// Validation
+	id = checkId(id, 'User Id');
+	firstName = checkValidName(firstName, 'First Name');
+	lastName = checkValidName(lastName, 'Last Name');
+	email = checkValidEmail(email, 'Email Address');
+	password = checkValidPassword(password, 'Password');
 
-	if (email !== existingUser.email) {
-        const userWithNewEmail = await User.findOne({ email });
-        if (userWithNewEmail) {
-            throw new Error('Email is already associated with another user.');
-        }
-    }
-	// password: valid string
-	if (typeof password !== 'string' || password.trim() === '') {
-        throw new Error('Password must be a non-empty string.');
-    }
-	// return updated User
-	    // Hash password
+	// Check if user exists
+	const user = await User.findById(id);
+	if (!user) throw { status: 404, message: "User with this `id` doesn't exist!" };
+
+	// Check if user with new email exists
+	const userWithNewEmail = await User.findOne({ email });
+	if (userWithNewEmail) throw { status: 403, message: 'User with this `email` already exists!' };
+
+	// Hash the new password
 	const salt = await bcrypt.genSalt(10);
 	const hashedPassword = await bcrypt.hash(password, salt);
-	
+
+	// TODO: update with optional fields
 	// Update user fields
-	existingUser.firstName = firstName;
-	existingUser.lastName = lastName;
-	existingUser.email = email;
-	existingUser.password = hashedPassword; 
-	
+	user.set({ firstName, lastName, email, password: hashedPassword });
+
 	// Save updated user
-	const updatedUser = await existingUser.save();
+	const updatedUser = await user.save();
+	if (!updatedUser) throw { status: 500, message: "Couldn't update user!" };
+
 	return updatedUser;
-	};
+};
 
 const remove = async (id) => {
-	// TODO: add validation for fields
-	// id: valid ObjectId -> check if User exists
-	// return the removed User
+	// Validation
+	id = checkId(id, 'User Id');
+
+	// Check if user exists
+	const user = await User.findByIdAndDelete(id);
+	if (!user) throw { status: 404, message: "User with this `id` doesn't exist!" };
+
+	return user;
 };
 
 const getAll = async () => {
@@ -129,6 +117,4 @@ const getAll = async () => {
 	return users;
 };
 
-//Create a login user/admin function
-
-export default { create, loginUser, update, remove, getAll };
+export default { create, login, update, remove, getAll };
