@@ -1,0 +1,24 @@
+<h1>Let's get you started with creating your hotel, {{manager.firstName}}!</h1>
+
+<p>Enter your new hotel's details below:</p>
+
+<form id="create-hotel-form" action="/manage/create" method="post">
+<label for="name">Hotel name</label>
+<input type="text" name="name" id="name" placeholder="type hotel name here...">
+
+<label for="description">Hotel description</label>
+<input type="text" name="description" id="description" placeholder="tell us about your hotel here...">
+
+<button type="submit">Create hotel</button>
+</form>
+
+{{#if hasErrors}}
+<h3>Errors</h3>
+
+<ul>
+{{#each errors as |error|}}
+<li>{{error}}</li>
+{{/each}}
+</ul>
+
+{{/if}}
