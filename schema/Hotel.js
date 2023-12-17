@@ -6,10 +6,8 @@ import { CommentSchema } from './Comment.js';
 export const RoomSchema = new Schema({
 	type: { type: String, required: true },
 	number: { type: Number, required: true },
+	capacity: { type: Number, min: 1, max: 10, required: true },
 	price: { type: Number, required: true },
-	bookedBy: { type: mongoose.ObjectId, ref: 'User', default: null },
-	bookedFrom: { type: Date, default: null },
-	bookedTill: { type: Date, default: null },
 });
 
 export const ReviewSchema = new Schema({

@@ -21,13 +21,8 @@ router
 	.post(async (req, res) => {
 		const newHotelData = req.body;
 
-		if (
-			newHotelData === undefined ||
-			Object.keys(newHotelData).length === 0
-		)
-			return res
-				.status(400)
-				.send({ error: 'No fields provided in request body!' });
+		if (newHotelData === undefined || Object.keys(newHotelData).length === 0)
+			return res.status(400).send({ error: 'No fields provided in request body!' });
 
 		// TODO: validate new hotel data
 		// unauthorized user -> redirect to '/error' (status code 403)
@@ -45,10 +40,7 @@ router
 		// }
 
 		try {
-			const hotel = await hotelData.create(
-				newHotelData.name,
-				newHotelData.manager
-			);
+			const hotel = await hotelData.create(newHotelData.name, newHotelData.manager);
 
 			return res.send(hotel);
 		} catch (e) {
@@ -71,9 +63,7 @@ router
 
 		try {
 			const hotel = await hotelData.get(hotelId);
-			const availableRooms = hotel.rooms.filter(
-				(room) => room.bookedBy === null
-			);
+			const availableRooms = hotel.rooms.filter((room) => room.bookedBy === null);
 
 			return res.render('hotels/hotel', {
 				title: hotel.name,
@@ -111,10 +101,7 @@ router
 
 		// Check description
 		try {
-			updatedHotelData.description = checkString(
-				updatedHotelData.description,
-				'description'
-			);
+			updatedHotelData.description = checkString(updatedHotelData.description, 'description');
 		} catch (e) {
 			errors.push(e.message);
 		}
@@ -214,8 +201,13 @@ router
 		} catch (e) {
 			errors.push(e.message);
 		}
+		// number: valid number
+		try {
+			newRoomData.capacity = checkNumber(newRoomData.capacity, 'capacity');
+		} catch (e) {
+			errors.push(e.message);
+		}
 		// price: valid number
-
 		try {
 			newRoomData.price = checkNumber(newRoomData.price, 'price');
 		} catch (e) {
@@ -232,6 +224,7 @@ router
 				hotelId,
 				newRoomData.type,
 				newRoomData.number,
+				newRoomData.capacity,
 				newRoomData.price
 			);
 
@@ -309,20 +302,14 @@ router
 
 		// Check Checkin
 		try {
-			bookingData.bookedFrom = checkCheckin(
-				bookingData.bookedFrom,
-				'bookedFrom'
-			);
+			bookingData.bookedFrom = checkCheckin(bookingData.bookedFrom, 'bookedFrom');
 		} catch (e) {
 			errors.push(e.message);
 		}
 
 		// Check Checkout
 		try {
-			bookingData.bookedTill = checkCheckout(
-				bookingData.bookedTill,
-				'bookedTill'
-			);
+			bookingData.bookedTill = checkCheckout(bookingData.bookedTill, 'bookedTill');
 		} catch (e) {
 			errors.push(e.message);
 		}
@@ -382,10 +369,7 @@ router
 
 		// Check number
 		try {
-			updatedRoomData.number = checkNumber(
-				updatedRoomData.number,
-				'number'
-			);
+			updatedRoomData.number = checkNumber(updatedRoomData.number, 'number');
 		} catch (e) {
 			errors.push(e.message);
 		}
@@ -491,10 +475,7 @@ router
 
 		// Check comment content
 		try {
-			newCommentData.content = checkString(
-				newCommentData.content,
-				'content'
-			);
+			newCommentData.content = checkString(newCommentData.content, 'content');
 		} catch (e) {
 			errors.push(e.message);
 		}
@@ -580,10 +561,7 @@ router
 
 		// Check updated content
 		try {
-			updatedCommentData.content = checkString(
-				updatedCommentData.content,
-				'content'
-			);
+			updatedCommentData.content = checkString(updatedCommentData.content, 'content');
 		} catch (e) {
 			errors.push(e.message);
 		}

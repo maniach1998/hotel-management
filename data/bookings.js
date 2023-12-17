@@ -1,198 +1,214 @@
-import Booking from "../schema/Booking.js";
-import Hotel from "../schema/Hotel.js";
-import dayjs from "dayjs";
-dayjs().format;
+import dayjs from 'dayjs';
 
-import {
-  checkCheckin,
-  checkCheckout,
-  checkId,
-  checkString,
-} from "../helpers.js";
+import Booking from '../schema/Booking.js';
+import Hotel from '../schema/Hotel.js';
+import User from '../schema/User.js';
+import { checkId, checkString, checkValidDate, checkValidDateDifference } from '../helpers.js';
 
-//create a booking
-const create = async (
-  hotelId,
-  roomId,
-  firstName,
-  lastName,
-  bookedFrom,
-  bookedTill
-) => {
-  //validation
-  hotelId = checkId(hotelId, "Hotel Id");
-  roomId = checkId(roomId, "Room Id");
-  firstName = checkString(firstName, "First Name");
-  lastName = checkString(lastName, "Last Name");
-  bookedFrom = checkCheckin(bookedFrom, "Booked From");
-  bookedTill = checkCheckout(bookedTill, "Booked Till");
+// Create a booking
+const create = async (hotelId, roomId, bookedBy, bookedFrom, bookedTill) => {
+	// Validation
+	hotelId = checkId(hotelId, 'Hotel Id');
+	roomId = checkId(roomId, 'Room Id');
+	bookedBy = checkId(bookedBy, 'User Id');
+	bookedFrom = checkValidDate(bookedFrom, 'Booked From');
+	bookedTill = checkValidDate(bookedTill, 'Booked Till');
+	const [bookedFromObject, bookedTillObject] = checkValidDateDifference(bookedFrom, bookedTill);
 
-  //check if hotel exists
-  const hotel = await Hotel.findById(hotelId);
-  if (!hotel)
-    throw { status: 404, message: "Hotel with this `hotelId` doesn't exist!" };
+	// Check if hotel exists
+	const hotel = await Hotel.findById(hotelId);
+	if (!hotel) throw { status: 404, message: "Hotel with this `hotelId` doesn't exist!" };
 
-  //check if room exists
-  const room = hotel.rooms.id(roomId);
-  if (!room)
-    throw { status: 404, message: "Room with this `roomId` doesn't exist!" };
+	// Check if room exists
+	const room = hotel.rooms.id(roomId);
+	if (!room) throw { status: 404, message: "Room with this `roomId` doesn't exist!" };
 
-  //check if room is booked
-  if (room.bookedFrom && room.bookedTill)
-    throw { status: 400, message: "Room is already booked!" };
+	// Check if user exists
+	const user = await User.findById(bookedBy);
+	if (!user) throw { status: 404, message: "User with this `userId` doesn't exist!" };
 
-  //calculate the total price
-  totalStay = dayjs(bookedTill).diff(bookedFrom, 'day').
-  finalAmount = hotel.rooms.price * totalStay
+	// Check if room is booked
+	const roomAvailability = await isRoomAvailable(roomId, bookedFrom, bookedTill);
+	if (!roomAvailability)
+		throw { status: 400, message: 'This room is unavailable between requested dates!' };
 
-  //create and save the new booking
-  const newBooking = new Booking({
-    hotel: hotelId,
-    room: roomId,
-    firstName: firstName,
-    lastName: lastName,
-    bookedFrom: bookedFrom,
-    bookedTill: bookedTill,
-    finalAmount: finalAmount
-  });
+	// Calculate the booking's total price
+	const totalStay = dayjs(bookedTill).diff(bookedFrom, 'day');
+	const finalAmount = room.price * totalStay;
 
-  const booking = await newBooking.save();
+	// Create and save the new booking
+	const newBooking = new Booking({
+		hotel: hotel._id,
+		room: room._id,
+		bookedBy: user._id,
+		bookedFrom: bookedFromObject.toISOString(),
+		bookedTill: bookedTillObject.toISOString(),
+		finalAmount: finalAmount,
+	});
 
-  if (!booking)
-    throw {
-      status: 500,
-      message: "Unexpected error, couldn't create booking!",
-    };
+	const booking = await newBooking.save();
 
-  //add hotelId to the room's bookings array
-  await hotel.updateOne({ $push: { hotel: hotel._id } });
+	if (!booking)
+		throw {
+			status: 500,
+			message: "Unexpected error, couldn't create booking!",
+		};
 
-  //add roomId to the room's bookings array
-  await room.updateOne({ $push: { room: room._id } });
-
-  return booking;
+	return booking;
 };
 
-//modify an existing booking
-const update = async (
-  bookingId,
-  roomId,
-  firstName,
-  lastName,
-  bookedFrom,
-  bookedTill
-) => {
-  //validation
-  bookingId = checkString(bookingId, "Booking Id");
-  roomId = checkId(roomId, "Hotel Id");
-  firstName = checkString(firstName, "First Name");
-  lastName = checkString(lastName, "Last Name");
-  bookedFrom = checkCheckin(bookedFrom, "Booked From");
-  bookedTill = checkCheckout(bookedTill, "Booked Till");
+// Modify an existing booking
+const update = async (bookingId, roomId, bookedBy, bookedFrom, bookedTill) => {
+	// Validation
+	bookingId = checkId(bookingId, 'Booking Id');
+	roomId = checkId(roomId, 'Hotel Id');
+	bookedBy = checkId(bookedBy, 'User Id');
+	bookedFrom = checkValidDate(bookedFrom, 'Booked From');
+	bookedTill = checkValidDate(bookedTill, 'Booked Till');
+	const [bookedFromObject, bookedTillObject] = checkValidDateDifference(bookedFrom, bookedTill);
 
-  //check if booking exists
-  const booking = await Booking.findById(bookingId);
-  if (!booking)
-    throw {
-      status: 404,
-      message: "Booking with this `bookingId` doesn't exist!",
-    };
-  
-  //check the room daily price
-  const hotelId = booking.hotel.id;
-  const hotel = await Hotel.findById(hotelId);
-  if (!hotel)
-    throw { status: 404, message: "Hotel with this `hotelId` doesn't exist!" };
-  
-  totalStay = dayjs(bookedTill).diff(bookedFrom, 'day').
-  finalAmount = hotel.rooms.price * totalStay
+	// Check if booking exists
+	const booking = await Booking.findById(bookingId);
+	if (!booking)
+		throw {
+			status: 404,
+			message: "Booking with this `bookingId` doesn't exist!",
+		};
 
-  //update booking
-  const updatedBooking = await booking.updateOne({
-    room: roomId,
-    firstName: firstName,
-    lastName: lastName,
-    bookedFrom: bookedFrom,
-    bookedTill: bookedTill,
-    finalAmount: finalAmount
-  });
-  if (!updatedBooking)
-    throw {
-      status: 500,
-      message: "Unexpected error, couldn't update booking!",
-    };
+	// Check if hotel exists
+	const hotelId = booking.hotel;
+	const hotel = await Hotel.findById(hotelId);
+	if (!hotel) throw { status: 404, message: "Hotel with this `hotelId` doesn't exist!" };
 
-  return updatedBooking;
+	// Check if room exists
+	const room = hotel.rooms.id(roomId);
+	if (!room) throw { status: 404, message: "Room with this `roomId` doesn't exist!" };
+
+	// Check if user exists
+	const user = await User.findById(bookedBy);
+	if (!user) throw { status: 404, message: "User with this `userId` doesn't exist!" };
+
+	// Check if the user updating the booking is the same as who made the booking
+	const isSameUser = user._id.equals(booking.bookedBy);
+	if (!isSameUser) throw { status: 403, message: 'Cannot update this booking!' };
+
+	// Check if room is booked for the new requested dates bookedFrom-bookedTill
+	const roomAvailability = await isRoomAvailable(roomId, bookedFrom, bookedTill);
+	if (!roomAvailability)
+		throw { status: 400, message: 'This room is unavailable between requested dates!' };
+
+	// Calculate the booking's total price
+	const totalStay = dayjs(bookedTill).diff(bookedFrom, 'day');
+	const finalAmount = room.price * totalStay;
+
+	// Update booking
+	const updatedBooking = await booking.updateOne({
+		room: roomId,
+		bookedFrom: bookedFromObject.toISOString(),
+		bookedTill: bookedTillObject.toISOString(),
+		finalAmount: finalAmount,
+	});
+
+	if (!updatedBooking)
+		throw {
+			status: 500,
+			message: "Unexpected error, couldn't update booking!",
+		};
+
+	return updatedBooking;
 };
 
-// cancel an existing booking
+// Cancel an existing booking
 const cancel = async (bookingId, lastName) => {
-  //validation
-  bookingId = checkString(bookingId, "Booking Id");
-  lastName = checkString(lastName, "Last Name");
+	// Validation
+	bookingId = checkId(bookingId, 'Booking Id');
+	lastName = checkString(lastName, 'Last Name');
 
-  //check if booking exists
-  const booking = await Booking.findById(bookingId);
-  if (!booking)
-    throw {
-      status: 404,
-      message: "Booking with this `bookingId` doesn't exist!",
-    };
+	// Check if booking exists
+	let booking = await Booking.findById(bookingId);
+	if (!booking)
+		throw {
+			status: 404,
+			message: "Booking with this `bookingId` doesn't exist!",
+		};
 
-  //check if last name matches
-  if (booking.lastName !== lastName)
-    throw { status: 400, message: "Last name doesn't match!" };
+	booking = await booking.populate('bookedBy');
 
-  //cancel booking
-  await booking.deleteOne();
-  const updatedBooking = await booking.save();
-  if (!updatedBooking)
-    throw {
-      status: 500,
-      message: "Unexpected error, couldn't cancel booking!",
-    };
+	// Check if last name matches
+	if (booking.bookedBy.lastName !== lastName)
+		throw { status: 400, message: "Last name doesn't match!" };
 
-  return updatedBooking;
+	// Cancel booking
+	const deletedBooking = await Booking.findByIdAndDelete(booking._id);
+	if (!deletedBooking)
+		throw {
+			status: 500,
+			message: "Unexpected error, couldn't cancel booking!",
+		};
+
+	return deletedBooking;
 };
 
 const get = async (bookingId) => {
-  //validation
-  bookingId = checkId(bookingId, "Booking Id");
+	// Validation
+	bookingId = checkId(bookingId, 'Booking Id');
 
-  //check if booking exists
-  const booking = await Booking.findById(bookingId);
-  if (!booking)
-    throw {
-      status: 404,
-      message: "Booking with this `bookingId` doesn't exist!",
-    };
+	// Check if booking exists
+	const booking = await Booking.findById(bookingId);
+	if (!booking)
+		throw {
+			status: 404,
+			message: "Booking with this `bookingId` doesn't exist!",
+		};
 
-  return booking;
+	return booking.populate(['hotel', 'bookedBy']);
 };
 
 const getAllAvailableRooms = async (hotelId, bookedFrom, bookedTill) => {
-  //validation
-  hotelId = checkId(hotelId, "Hotel Id");
-  bookedFrom = checkCheckin(bookedFrom, "Booked From");
-  bookedTill = checkCheckout(bookedTill, "Booked Till");
+	//validation
+	hotelId = checkId(hotelId, 'Hotel Id');
+	bookedFrom = checkValidDate(bookedFrom, 'Booked From');
+	bookedTill = checkValidDate(bookedTill, 'Booked Till');
+	const [bookedFromObject, bookedTillObject] = checkValidDateDifference(bookedFrom, bookedTill);
 
-  //check if hotel exists
-  const hotel = await Hotel.findById(hotelId);
-  if (!hotel)
-    throw { status: 404, message: "Hotel with this `hotelId` doesn't exist!" };
+	//check if hotel exists
+	const hotel = await Hotel.findById(hotelId);
+	if (!hotel) throw { status: 404, message: "Hotel with this `hotelId` doesn't exist!" };
 
-  //check available rooms at selteced dates
-  const availableRooms = hotel.rooms.filter((room) => {
-    if (
-      !room.bookedFrom &&
-      !room.bookedTill &&
-      dayjs(room.bookedFrom).isBefore(bookedFrom, 'hour') &&
-      dayjs(room.bookedTill).isAfter(bookedTill, 'hour')
-    )
-      return room;
-  });
+	//check available rooms at selteced dates
+	const availableRooms = hotel.rooms.filter((room) => {
+		if (
+			!room.bookedFrom &&
+			!room.bookedTill &&
+			dayjs(room.bookedFrom).isBefore(bookedFrom, 'hour') &&
+			dayjs(room.bookedTill).isAfter(bookedTill, 'hour')
+		)
+			return room;
+	});
 
-  return availableRooms;
+	return availableRooms;
 };
 
-export default { create, update, cancel, get, getAllAvailableRooms };
+const isRoomAvailable = async (roomId, requestedFrom, requestedTill) => {
+	// Checks if bookings for this room exist within date range requestedFrom-requestedTill
+
+	// Validation
+	roomId = checkId(roomId, 'Room Id');
+	requestedFrom = checkValidDate(requestedFrom, 'Requested From');
+	requestedTill = checkValidDate(requestedTill, 'Requested Till');
+	const [requestedFromObject, requestedTillObject] = checkValidDateDifference(
+		requestedFrom,
+		requestedTill
+	);
+
+	const roomBookings = await Booking.find({ room: roomId })
+		.where('bookedFrom')
+		.lt(requestedTillObject.toISOString())
+		.where('bookedTill')
+		.gt(requestedFromObject.toISOString())
+		.exec();
+
+	return roomBookings.length === 0 ? true : false;
+};
+
+export default { create, update, cancel, get, getAllAvailableRooms, isRoomAvailable };

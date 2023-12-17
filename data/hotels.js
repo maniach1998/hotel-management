@@ -1,10 +1,5 @@
 import { ObjectId } from 'mongodb';
-import {
-	checkCheckout,
-	checkId,
-	checkNumber,
-	checkString,
-} from '../helpers.js';
+import { checkCheckout, checkId, checkNumber, checkString } from '../helpers.js';
 import Hotel from '../schema/Hotel.js';
 import User from '../schema/User.js';
 
@@ -125,7 +120,7 @@ const getAllManaged = async (managerId) => {
 	return hotels;
 };
 
-const createRoom = async (hotelId, type, number, price) => {
+const createRoom = async (hotelId, type, number, capacity, price) => {
 	// TODO: create a new Room in hotel with _id: hotelId
 	// hotelId: valid ObjectId -> check if hotel exists
 	// type: valid string
@@ -136,6 +131,7 @@ const createRoom = async (hotelId, type, number, price) => {
 	hotelId = checkId(hotelId, 'Hotel Id');
 	type = checkString(type, 'Type');
 	number = checkNumber(number, 'Number');
+	capacity = checkNumber(capacity, 'Capacity');
 	price = checkNumber(price, 'Price');
 
 	// Check if Hotel exists
@@ -148,7 +144,7 @@ const createRoom = async (hotelId, type, number, price) => {
 
 	// Create new room
 	const id = new ObjectId();
-	const newRoom = { _id: id, type, number, price };
+	const newRoom = { _id: id, type, number, capacity, price };
 	hotel.rooms.push(newRoom);
 
 	const updatedHotel = await hotel.save();
@@ -185,7 +181,7 @@ const getRoom = async (hotelId, roomId) => {
 	return room;
 };
 
-const updateRoom = async (hotelId, roomId, type, number, price) => {
+const updateRoom = async (hotelId, roomId, type, number, capacity, price) => {
 	// TODO: update room with _id: roomId in hotel with _id: hotelId
 	// hotelId: valid ObjectId -> check if hotel exists
 	// roomId: valid ObjectId -> check if room exists
@@ -200,6 +196,7 @@ const updateRoom = async (hotelId, roomId, type, number, price) => {
 	roomId = checkId(roomId, 'Room Id');
 	type = checkString(type, 'Type');
 	number = checkNumber(number, 'Number');
+	capacity = checkNumber(capacity, 'Capacity');
 	price = checkNumber(price, 'Price');
 	// Update the hotel with new content
 	const hotel = await Hotel.findById(hotelId);
@@ -213,7 +210,7 @@ const updateRoom = async (hotelId, roomId, type, number, price) => {
 	if (!room) throw { status: 404, message: "Couldn't find this room!" };
 
 	// Update room data
-	room.set({ type, number, price });
+	room.set({ type, number, capacity, price });
 
 	const updatedHotel = await hotel.save();
 	if (!updatedHotel)
