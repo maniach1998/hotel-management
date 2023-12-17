@@ -111,10 +111,28 @@ const remove = async (id) => {
 	return user;
 };
 
+const getUserBookings = async (userId) => {
+	// Validation
+	userId = checkId(userId, 'User Id');
+
+	// TODO: get all bookings made by the user
+	// use Booking.find()
+	// return array of bookings
+};
+
+const getProfile = async (userId) => {
+	// Validation
+	userId = checkId(userId, 'User Id');
+
+	// TODO: return all of the user's details
+	// use User.find()
+	// return { user , user's bookings, user's reviews if any }
+};
+
 const getAll = async () => {
 	const users = await User.find();
 
 	return users;
 };
 
-export default { create, login, update, remove, getAll };
+export default { create, login, update, remove, getUserBookings, getProfile, getAll };
