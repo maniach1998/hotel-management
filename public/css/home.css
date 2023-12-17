@@ -150,3 +150,14 @@ footer a {
 	margin-right: 15px;
 	color: #fff;
 }
+
+.logout-button {
+	background-color: red;
+	color: white;
+	padding: 5px 10px;
+	border: none;
+	cursor: pointer;
+	position: fixed;
+	top: 10px;
+	right: 10px;
+}
