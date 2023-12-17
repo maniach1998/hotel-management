@@ -1,17 +1,15 @@
 import { ObjectId } from 'mongodb';
-import { checkCheckout, checkId, checkNumber, checkString } from '../helpers.js';
+import { checkId, checkNumber, checkString } from '../helpers.js';
 import Hotel from '../schema/Hotel.js';
 import User from '../schema/User.js';
 
-const create = async (name, manager) => {
-	// TODO: add validation for fields
-	// name: valid string
-	// manager: valid ObjectId
-	// manager: check if User with this ObjectId exists
-
+const create = async (name, description, manager) => {
+	// Validation
 	name = checkString(name, 'Name');
+	description = checkString(description, 'Description');
 	manager = checkId(manager, 'Manager Id');
 
+	// Check if user exists
 	const user = await User.findById(manager);
 	if (!user)
 		throw {
@@ -20,7 +18,7 @@ const create = async (name, manager) => {
 		};
 
 	// Create new hotel
-	const newHotel = new Hotel({ name, manager });
+	const newHotel = new Hotel({ name, description, manager });
 	const hotel = await newHotel.save();
 	if (!hotel)
 		throw {
@@ -32,9 +30,6 @@ const create = async (name, manager) => {
 };
 
 const get = async (hotelId) => {
-	// TODO: find hotel with _id: hotelId
-	// hotelId: valid ObjectId -> check if hotel exists
-	// return hotel
 	// Validation
 	hotelId = checkId(hotelId, 'Hotel Id');
 
@@ -46,11 +41,7 @@ const get = async (hotelId) => {
 };
 
 const update = async (hotelId, name, description) => {
-	// TODO: add validation for fields
-	// hotelId: valid ObjectId -> check if hotel exists
-	// name: valid string
-	// description: valid string
-	// return the updated Hotel
+	// TODO: check if manager and updater is the same user
 
 	// Validation
 	hotelId = checkId(hotelId, 'Hotel Id');
@@ -73,9 +64,7 @@ const update = async (hotelId, name, description) => {
 };
 
 const remove = async (hotelId) => {
-	// TODO: add validation for fields
-	// hotelId: valid ObjectId -> check if hotel exists
-	// return the removed Hotel
+	// TODO: check if manager and deleter is the same user
 
 	// Validation
 	hotelId = checkId(hotelId, 'Hotel Id');
@@ -121,12 +110,7 @@ const getAllManaged = async (managerId) => {
 };
 
 const createRoom = async (hotelId, type, number, capacity, price) => {
-	// TODO: create a new Room in hotel with _id: hotelId
-	// hotelId: valid ObjectId -> check if hotel exists
-	// type: valid string
-	// number: valid number
-	// price: valid number
-
+	// TODO: check for manager
 	// Validation
 	hotelId = checkId(hotelId, 'Hotel Id');
 	type = checkString(type, 'Type');
@@ -160,10 +144,7 @@ const createRoom = async (hotelId, type, number, capacity, price) => {
 };
 
 const getRoom = async (hotelId, roomId) => {
-	// TODO: get room with _id: roomId of a hotel with _id: hotelId
-	// hotelId: valid ObjectId -> check if hotel exists
-	// roomId: valid ObjectId -> check if room exists
-	// return room
+	// Validation
 	hotelId = checkId(hotelId, 'Hotel Id');
 	roomId = checkId(roomId, 'Room Id');
 
@@ -182,14 +163,7 @@ const getRoom = async (hotelId, roomId) => {
 };
 
 const updateRoom = async (hotelId, roomId, type, number, capacity, price) => {
-	// TODO: update room with _id: roomId in hotel with _id: hotelId
-	// hotelId: valid ObjectId -> check if hotel exists
-	// roomId: valid ObjectId -> check if room exists
-	// Validation fields-
-	// type: valid string (optional)
-	// number: valid number (optional)
-	// price: valid number (optional)
-	// return updated room
+	// TODO: check if manager and updater is the same user
 
 	// Validation
 	hotelId = checkId(hotelId, 'hotel Id');
@@ -225,12 +199,11 @@ const updateRoom = async (hotelId, roomId, type, number, capacity, price) => {
 };
 
 const removeRoom = async (hotelId, roomId) => {
-	// TODO: delete room with _id: roomId in hotel with _id: hotelId
-	// hotelId: valid ObjectId -> check if hotel exists
-	// roomId: valid ObjectId -> check if room exists
-	// return deleted room
+	// Validation
 	hotelId = checkId(hotelId, 'hotel Id');
 	roomId = checkId(roomId, 'Room Id');
+
+	// TODO: check if manager and deleter is the same user
 
 	const hotel = await Hotel.findById(hotelId);
 	if (!hotel)
@@ -258,28 +231,8 @@ const removeRoom = async (hotelId, roomId) => {
 	return room;
 };
 
-const bookRoom = async (hotelId, roomId, bookedBy, bookedFrom, bookedTill) => {
-	// TODO: book room with _id: roomId in hotel with _id: hotelId
-	// hotelId: valid ObjectId -> check if hotel exists
-	// roomId: valid ObjectId -> check if room exists
-	// Validation fields-
-	// bookedBy: valid ObjectId -> check if user exists
-	// bookedFrom: valid Date -> check if date is in the future
-	// bookedTill: valid Date -> check if date is in the future AND after bookedFrom date
-	// return booking status and booked room
-
-	hotelId = checkId(hotelId, 'hotel Id');
-	roomId = checkId(roomId, 'Room Id');
-	bookedBy = checkId(bookedBy, 'User Id');
-
-	bookedFrom = checkCheckin(bookedFrom, 'Check In');
-	bookedTill = checkCheckout(bookedTill, 'Check Out');
-};
-
 const getAllRooms = async (hotelId) => {
-	// TODO: get all rooms of a hotel with _id: hotelId
-	// hotelId: valid ObjectId -> check if hotel exists
-	// return rooms
+	// Validation
 	hotelId = checkId(hotelId, 'Hotel Id');
 
 	// Check if hotel exists
@@ -304,6 +257,5 @@ export default {
 	getRoom,
 	updateRoom,
 	removeRoom,
-	bookRoom,
 	getAllRooms,
 };

@@ -19,6 +19,10 @@ const create = async (hotelId, authorId, content, rating) => {
 	const user = await User.findById(authorId);
 	if (!user) throw { status: 404, message: "User with this `authorId` doesn't exist!" };
 
+	// Check if user has already posted a review
+	const hasPosted = hotel.reviews.find((review) => user._id.equals(review.author));
+	if (hasPosted) throw { status: 400, message: 'You can post a review only once per hotel!' };
+
 	// Create a new review and recalculate average rating for the hotel
 	const id = new ObjectId();
 	const newReview = { _id: id, author: authorId, content, rating };

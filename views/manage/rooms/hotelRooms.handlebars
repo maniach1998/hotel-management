@@ -1,2 +1,39 @@
 <h1>Rooms at {{hotel.name}}</h1>
 
+<h4>Rooms:</h4>
+<ul id="rooms-list">
+  {{#each rooms as |room|}}
+  <li id="{{room._id}}">
+    <h5>{{room.type}} #{{room.number}}</h5>
+    <p>Capacity: {{room.capacity}}</p>
+    <p>Price: ${{room.price}}</p>
+
+    <button type="button" onclick="navEdit('{{room._id}}')">Edit</button>
+    <button type="button" onclick="handleDelete('{{room._id}}')">Delete</button>
+  </li>
+  {{/each}}
+</ul>
+
+<h3>Add a room</h3>
+<form id="create-room" action="/manage/{{hotel._id}}/rooms" method="post">
+  <label for="type">Room Type</label>
+  <input type="text" name="type" id="type">
+
+  <label for="number">Room Number</label>
+  <input type="number" name="number" id="number">
+
+  <label for="capacity">Room Capacity</label>
+  <input type="number" name="capacity" id="capacity">
+
+  <label for="price">Room Price (per night)</label>
+  <input type="number" name="price" id="price">
+
+  <button type="submit">Create room</button>
+
+  <div id="errors" class="errors" hidden>
+    <h4>Errors</h4>
+    <ul id="errors-list" class="errors-list"></ul>
+  </div>
+</form>
+
+<script src="/public/js/manage/createRoom.js"></script>

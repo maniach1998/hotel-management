@@ -22,12 +22,13 @@
 - [x] add middlewares for auth
 - [x] setup express-session
 - [ ] add xss
-- [ ] add checking for dates using dayjs
-- [ ] allow users to post reviews only once per hotel
+- [x] add checking for dates using dayjs
+- [x] allow users to post reviews only once per hotel
 - [ ] add type checking helper for optional fields (allows empty string)
 - [ ] add type checking for room capacity
 - [ ] add address and contact info to hotel schema
 - [ ] delete related data when delete function is called (eg. manager acc deleted should also delete created hotels, and hotels bookings)
+- [ ] add name checking that allows "-"" and "'"
 
 ### Bookings flow
 
