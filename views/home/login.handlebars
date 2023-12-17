@@ -21,5 +21,15 @@
             <input type="button" value="Sign Up" onclick="window.location.href='/register';" class="button">
         </div>
     </form>
-    
+    {{#if hasErrors}}
+{{!-- <h3>Errors</h3> --}}
+{{/if}}
+
+<ul id="errors" class="errors-list">
+  {{#if hasErrors}}
+  {{#each errors}}
+  <li>{{this}}</li>
+  {{/each}}
+  {{/if}}
+</ul>
 <script src="/public/js/client_side_validation_login.js"></script>

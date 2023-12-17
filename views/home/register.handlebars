@@ -47,5 +47,15 @@
     </form>
     <p>Already have an account? <a href="/login">Login</a></p>
 </div>
+{{#if hasErrors}}
+{{!-- <h3>Errors</h3> --}}
+{{/if}}
 
+<ul id="errors" class="errors-list">
+  {{#if hasErrors}}
+  {{#each errors}}
+  <li>{{this}}</li>
+  {{/each}}
+  {{/if}}
+</ul>
 <script src="/public/js/client_side_validation_register.js"></script>
