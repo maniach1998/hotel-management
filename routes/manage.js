@@ -53,10 +53,7 @@ router
 
 		// Check hotel description
 		try {
-			newHotelData.description = checkString(
-				newHotelData.description,
-				'description'
-			);
+			newHotelData.description = checkString(newHotelData.description, 'description');
 		} catch (e) {
 			errors.push(e.message);
 		}
@@ -73,10 +70,7 @@ router
 
 		try {
 			// TODO: add description
-			const hotel = await hotelData.create(
-				newHotelData.name,
-				manager._id
-			);
+			const hotel = await hotelData.create(newHotelData.name, manager._id);
 
 			// TODO: redirect to create rooms for this hotel
 			return res.redirect(`/manage/${hotel._id}/rooms`);
@@ -129,7 +123,9 @@ router
 		try {
 			hotelId = checkId(hotelId, 'hotel');
 		} catch (e) {
-			errors.push(e.message);
+			return res
+				.status(400)
+				.render('error', { title: 'Error', code: 400, error: 'Invalid hotel Id!' });
 		}
 
 		try {

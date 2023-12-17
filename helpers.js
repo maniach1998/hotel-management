@@ -1,26 +1,23 @@
+import dayjs from 'dayjs';
 import { ObjectId } from 'mongodb';
 let checkin = null;
 
 function checkString(value, name) {
-	if (!value || typeof value !== "string")
+	if (!value || typeof value !== 'string')
 		throw new Error(`\`${name}\` must be a non-empty string!`);
 
 	value = value.trim();
-	if (value.length === 0)
-		throw new Error(`\`${name}\` cannot be empty string or just spaces!`);
+	if (value.length === 0) throw new Error(`\`${name}\` cannot be empty string or just spaces!`);
 
 	return value;
 }
 
 function checkId(id, name) {
-	if (!id || typeof id !== "string")
-		throw new Error(`\`${name}\` must be a non-empty string!`);
+	if (!id || typeof id !== 'string') throw new Error(`\`${name}\` must be a non-empty string!`);
 
 	id = id.trim();
-	if (id.length === 0)
-		throw new Error(`\`${name}\` cannot be empty string or just spaces!`);
-	if (!ObjectId.isValid(id))
-		throw new Error(`\`${name}\` is not a valid ObjectId!`);
+	if (id.length === 0) throw new Error(`\`${name}\` cannot be empty string or just spaces!`);
+	if (!ObjectId.isValid(id)) throw new Error(`\`${name}\` is not a valid ObjectId!`);
 
 	return id;
 }
@@ -39,9 +36,7 @@ function checkValidName(nameString, name) {
 	const nameRegex = /^[A-Za-z]+$/;
 
 	if (nameString.length < 2 || nameString.length > 25)
-		throw new Error(
-			`\`${name}\` should be atleast 2 characters and a max of 25 characters long!`
-		);
+		throw new Error(`\`${name}\` should be atleast 2 characters and a max of 25 characters long!`);
 
 	if (!nameRegex.test(nameString))
 		throw new Error(`\`${name}\` should only contain alphabet characters!`);
@@ -66,7 +61,7 @@ function checkValidPassword(password, name) {
 	password = checkString(password, name);
 
 	// remove whitespace from password
-	password = password.replace(/\s+/g, "");
+	password = password.replace(/\s+/g, '');
 
 	// Regex that matches for atleast one uppercase, atleast one number, atleast one special character, and minimum 8 characters length
 	const passwordRegex = /^(?=.*[A-Z])(?=.*[0-9])(?=.*[\W]).{8,}$/;
@@ -83,7 +78,7 @@ function checkValidAccountType(accountType, name) {
 	accountType = checkString(accountType, name);
 	accountType = accountType.toLowerCase();
 
-	if (!["user", "hotel"].includes(accountType))
+	if (!['user', 'hotel'].includes(accountType))
 		throw new Error(`\`${name}\` must be either "user" or "hotel"!`);
 
 	return accountType;
@@ -113,6 +108,35 @@ function calculateAverageRating(reviews) {
 	const averageRating = ratingsTotal / totalReviews;
 
 	return Number(averageRating.toFixed(2));
+}
+
+function checkValidDate(dateString, name) {
+	dateString = checkString(dateString, name);
+
+	const dateRegex = /^(0[1-9]|1[0-2])\/(0[1-9]|[12][0-9]|3[01])\/\d{4}$/;
+	if (!dateRegex.test(dateString))
+		throw new Error(`\`${name}\` is not a valid date in MM/DD/YYYY format!`);
+
+	const dateObject = dayjs(dateString, 'MM/DD/YYYY');
+
+	if (!dateObject.isValid()) throw new Error(`\`${name}\` is not a valid date!`);
+	if (!dateObject.isAfter(new dayjs()))
+		throw new Error(`\`${name}\` must be greater than current date!`);
+
+	return dateString;
+}
+
+function checkValidDateDifference(startDate, endDate) {
+	const startDateObject = dayjs(startDate, 'MM/DD/YYYY');
+	const endDateObject = dayjs(endDate, 'MM/DD/YYYY');
+
+	if (!endDateObject.isAfter(startDateObject))
+		throw new Error('`endDate` cannot be later than `startDate`!');
+
+	if (endDateObject.diff(startDateObject, 'days') < 1)
+		throw new Error('`endDate` should be atleast 1 day later than `startDate`!');
+
+	return [startDateObject, endDateObject];
 }
 
 function checkCheckin(value, name) {
@@ -185,6 +209,8 @@ export {
 	checkRating,
 	checkCheckin,
 	checkCheckout,
+	checkValidDate,
+	checkValidDateDifference,
 	calculateAverageRating,
 	checkValidEmail,
 	checkValidName,
