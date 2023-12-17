@@ -1,10 +1,9 @@
 function checkString(value, name) {
-	if (!value || typeof value !== "string")
+	if (!value || typeof value !== 'string')
 		throw new Error(`\`${name}\` must be a non-empty string!`);
 
 	value = value.trim();
-	if (value.length === 0)
-		throw new Error(`\`${name}\` cannot be empty string or just spaces!`);
+	if (value.length === 0) throw new Error(`\`${name}\` cannot be empty string or just spaces!`);
 
 	return value;
 }
@@ -26,7 +25,7 @@ function checkValidPassword(password, name) {
 	password = checkString(password, name);
 
 	// remove whitespace from password
-	password = password.replace(/\s+/g, "");
+	password = password.replace(/\s+/g, '');
 
 	// Regex that matches for atleast one uppercase, atleast one number, atleast one special character, and minimum 8 characters length
 	const passwordRegex = /^(?=.*[A-Z])(?=.*[0-9])(?=.*[\W]).{8,}$/;
@@ -43,38 +42,38 @@ const form = document.getElementById('form');
 const emailElement = document.getElementById('email');
 const passwordElement = document.getElementById('password');
 
-form.addEventListener('submit', e => {
-    e.preventDefault();
-    inputValidation();
+form.addEventListener('submit', (e) => {
+	e.preventDefault();
+	inputValidation();
+	form.submit();
 });
 
 function inputValidation() {
-    const emailValue = emailElement.value.trim();
-    const passwordValue = passwordElement.value;
+	const emailValue = emailElement.value.trim();
+	const passwordValue = passwordElement.value;
 
-    validateField(emailElement, emailValue, checkValidEmail, 'Email');
-    validateField(passwordElement, passwordValue, checkValidPassword, 'Password');
+	validateField(emailElement, emailValue, checkValidEmail, 'Email');
+	validateField(passwordElement, passwordValue, checkValidPassword, 'Password');
 }
 
 function validateField(element, value, validationFunc, fieldName) {
-    try {
-        validationFunc(value, fieldName);
-        setSuccessFor(element);
-    } catch (error) {
-        setErrorFor(element, error.message);
-    }
+	try {
+		validationFunc(value, fieldName);
+		setSuccessFor(element);
+	} catch (error) {
+		setErrorFor(element, error.message);
+	}
 }
 
 function setErrorFor(input, message) {
-    const formControl = input.parentElement;
-    const errorMessage = formControl.querySelector('.error-message');
-    formControl.classList.add('error');
-    errorMessage.innerText = message;
-    errorMessage.style.display = 'block';
+	const formControl = input.parentElement;
+	const errorMessage = formControl.querySelector('.error-message');
+	formControl.classList.add('error');
+	errorMessage.innerText = message;
+	errorMessage.style.display = 'block';
 }
 
 function setSuccessFor(input) {
-    const formControl = input.parentElement;
-    formControl.className = 'input-container success';
+	const formControl = input.parentElement;
+	formControl.className = 'input-container success';
 }
-

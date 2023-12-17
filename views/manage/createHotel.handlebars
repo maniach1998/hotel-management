@@ -3,22 +3,29 @@
 <p>Enter your new hotel's details below:</p>
 
 <form id="create-hotel-form" action="/manage/create" method="post">
-<label for="name">Hotel name</label>
-<input type="text" name="name" id="name" placeholder="type hotel name here...">
+  <label for="name">Hotel name</label>
+  <input type="text" name="name" id="name" placeholder="type hotel name here...">
 
-<label for="description">Hotel description</label>
-<input type="text" name="description" id="description" placeholder="tell us about your hotel here...">
+  <label for="description">Hotel description</label>
+  <input type="text" name="description" id="description" placeholder="tell us about your hotel here...">
 
-<button type="submit">Create hotel</button>
+  <button type="submit">Create hotel</button>
+
+  <div id="errors" class="errors" hidden>
+    <h4>Errors</h4>
+    <ul id="errors-list" class="errors-list"></ul>
+  </div>
 </form>
 
 {{#if hasErrors}}
 <h3>Errors</h3>
 
 <ul>
-{{#each errors as |error|}}
-<li>{{error}}</li>
-{{/each}}
+  {{#each errors as |error|}}
+  <li>{{error}}</li>
+  {{/each}}
 </ul>
 
 {{/if}}
+
+<script src="/public/js/manage/createHotel.js"></script>

@@ -1,0 +1,34 @@
+<h1>Manage {{hotel.name}}</h1>
+
+<p>Edit your hotel's details below:</p>
+
+<form id="edit-hotel-form" action="/manage/{{hotel._id}}" method="post">
+  <label for="name">Hotel name</label>
+  <input type="text" name="name" id="name" placeholder="type hotel name here..." value="{{formData.name}}">
+
+  <label for="description">Hotel description</label>
+  <input type="text" name="description" id="description" placeholder="tell us about your hotel here..."
+    value="{{formData.description}}">
+
+  <button type="submit">Update hotel</button>
+
+  <div id="errors" class="errors" hidden>
+    <h4>Errors</h4>
+    <ul id="errors-list" class="errors-list"></ul>
+  </div>
+</form>
+
+<button type="button" onclick="deleteHotel()">Delete hotel</button>
+
+<h4>Rooms: {{rooms.length}}</h4>
+<ul>
+  {{#each rooms as |room|}}
+  <li id="{{room._id}}">
+    <h5>{{room.type}} #{{room.number}}</h5>
+    <p>Capacity: {{room.capacity}}</p>
+  </li>
+  {{/each}}
+</ul>
+<a href="/manage/{{hotel._id}}/rooms">Manage rooms</a>
+
+<script src="/public/js/manage/editHotel.js"></script>

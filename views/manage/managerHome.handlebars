@@ -5,17 +5,17 @@
 
 {{#if hotels.length}}
 {{#each hotels as |hotel|}}
-  <li id="{{{hotel._id}}}">
-    <a href="/hotels/{{hotel._id}}">
-      <h2>{{hotel.name}}</h2>
-    </a>
+<li id="{{{hotel._id}}}">
+  <a href="/manage/{{hotel._id}}">
+    <h2>{{hotel.name}}</h2>
+  </a>
 
-    {{#if hotel.description}}
-    <p>{{hotel.description}}</p>
-    {{else}}
-    <p>No description</p>
-    {{/if}}
-  </li>
+  {{#if hotel.description}}
+  <p>{{hotel.description}}</p>
+  {{else}}
+  <p>No description</p>
+  {{/if}}
+</li>
 {{/each}}
 
 {{else}}

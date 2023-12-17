@@ -1,0 +1,24 @@
+<h1>Edit {{room.type}}</h1>
+
+<form id="edit-room" action="/manage/{{hotelId}}/rooms/{{room._id}}" method="post">
+  <label for="type">Room Type</label>
+  <input type="text" name="type" id="type" value="{{room.type}}">
+
+  <label for="number">Room Number</label>
+  <input type="number" name="number" id="number" value="{{room.number}}">
+
+  <label for="capacity">Room Capacity</label>
+  <input type="number" name="capacity" id="capacity" value="{{room.capacity}}">
+
+  <label for="price">Room Price (per night)</label>
+  <input type="number" name="price" id="price" value="{{room.price}}">
+
+  <button type="submit">Update room</button>
+
+  <div id="errors" class="errors" hidden>
+    <h4>Errors</h4>
+    <ul id="errors-list" class="errors-list"></ul>
+  </div>
+</form>
+
+<script src="/public/js/manage/editRoom.js"></script>
