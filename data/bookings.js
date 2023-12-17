@@ -3,14 +3,7 @@ import dayjs from 'dayjs';
 import Booking from '../schema/Booking.js';
 import Hotel from '../schema/Hotel.js';
 import User from '../schema/User.js';
-import {
-	checkCheckin,
-	checkCheckout,
-	checkId,
-	checkString,
-	checkValidDate,
-	checkValidDateDifference,
-} from '../helpers.js';
+import { checkId, checkString, checkValidDate, checkValidDateDifference } from '../helpers.js';
 
 // Create a booking
 const create = async (hotelId, roomId, bookedBy, bookedFrom, bookedTill) => {
@@ -67,11 +60,12 @@ const create = async (hotelId, roomId, bookedBy, bookedFrom, bookedTill) => {
 // Modify an existing booking
 const update = async (bookingId, roomId, bookedBy, bookedFrom, bookedTill) => {
 	// Validation
-	bookingId = checkString(bookingId, 'Booking Id');
+	bookingId = checkId(bookingId, 'Booking Id');
 	roomId = checkId(roomId, 'Hotel Id');
 	bookedBy = checkId(bookedBy, 'User Id');
-	bookedFrom = checkCheckin(bookedFrom, 'Booked From');
-	bookedTill = checkCheckout(bookedTill, 'Booked Till');
+	bookedFrom = checkValidDate(bookedFrom, 'Booked From');
+	bookedTill = checkValidDate(bookedTill, 'Booked Till');
+	const [bookedFromObject, bookedTillObject] = checkValidDateDifference(bookedFrom, bookedTill);
 
 	// Check if booking exists
 	const booking = await Booking.findById(bookingId);
@@ -81,7 +75,7 @@ const update = async (bookingId, roomId, bookedBy, bookedFrom, bookedTill) => {
 			message: "Booking with this `bookingId` doesn't exist!",
 		};
 
-	// Check the room daily price
+	// Check if hotel exists
 	const hotelId = booking.hotel;
 	const hotel = await Hotel.findById(hotelId);
 	if (!hotel) throw { status: 404, message: "Hotel with this `hotelId` doesn't exist!" };
@@ -110,8 +104,8 @@ const update = async (bookingId, roomId, bookedBy, bookedFrom, bookedTill) => {
 	// Update booking
 	const updatedBooking = await booking.updateOne({
 		room: roomId,
-		bookedFrom: bookedFrom,
-		bookedTill: bookedTill,
+		bookedFrom: bookedFromObject.toISOString(),
+		bookedTill: bookedTillObject.toISOString(),
 		finalAmount: finalAmount,
 	});
 
@@ -127,7 +121,7 @@ const update = async (bookingId, roomId, bookedBy, bookedFrom, bookedTill) => {
 // Cancel an existing booking
 const cancel = async (bookingId, lastName) => {
 	// Validation
-	bookingId = checkString(bookingId, 'Booking Id');
+	bookingId = checkId(bookingId, 'Booking Id');
 	lastName = checkString(lastName, 'Last Name');
 
 	// Check if booking exists
@@ -138,7 +132,7 @@ const cancel = async (bookingId, lastName) => {
 			message: "Booking with this `bookingId` doesn't exist!",
 		};
 
-	booking = booking.populate('bookedBy');
+	booking = await booking.populate('bookedBy');
 
 	// Check if last name matches
 	if (booking.bookedBy.lastName !== lastName)
@@ -167,14 +161,15 @@ const get = async (bookingId) => {
 			message: "Booking with this `bookingId` doesn't exist!",
 		};
 
-	return booking;
+	return booking.populate(['hotel', 'bookedBy']);
 };
 
 const getAllAvailableRooms = async (hotelId, bookedFrom, bookedTill) => {
 	//validation
 	hotelId = checkId(hotelId, 'Hotel Id');
-	bookedFrom = checkCheckin(bookedFrom, 'Booked From');
-	bookedTill = checkCheckout(bookedTill, 'Booked Till');
+	bookedFrom = checkValidDate(bookedFrom, 'Booked From');
+	bookedTill = checkValidDate(bookedTill, 'Booked Till');
+	const [bookedFromObject, bookedTillObject] = checkValidDateDifference(bookedFrom, bookedTill);
 
 	//check if hotel exists
 	const hotel = await Hotel.findById(hotelId);
@@ -196,16 +191,24 @@ const getAllAvailableRooms = async (hotelId, bookedFrom, bookedTill) => {
 
 const isRoomAvailable = async (roomId, requestedFrom, requestedTill) => {
 	// Checks if bookings for this room exist within date range requestedFrom-requestedTill
+
+	// Validation
 	roomId = checkId(roomId, 'Room Id');
+	requestedFrom = checkValidDate(requestedFrom, 'Requested From');
+	requestedTill = checkValidDate(requestedTill, 'Requested Till');
+	const [requestedFromObject, requestedTillObject] = checkValidDateDifference(
+		requestedFrom,
+		requestedTill
+	);
 
 	const roomBookings = await Booking.find({ room: roomId })
 		.where('bookedFrom')
-		.lt(requestedTill)
+		.lt(requestedTillObject.toISOString())
 		.where('bookedTill')
-		.gt(requestedFrom)
+		.gt(requestedFromObject.toISOString())
 		.exec();
 
 	return roomBookings.length === 0 ? true : false;
 };
 
-export default { create, update, cancel, get, getAllAvailableRooms };
+export default { create, update, cancel, get, getAllAvailableRooms, isRoomAvailable };

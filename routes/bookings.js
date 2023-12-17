@@ -1,7 +1,8 @@
 import { Router } from 'express';
 const router = Router();
+
 import { bookingData } from '../data/index.js';
-import { checkId, checkCheckout, checkValidDate, checkValidDateDifference } from '../helpers.js';
+import { checkId, checkValidDate, checkValidDateDifference, checkValidName } from '../helpers.js';
 import Booking from '../schema/Booking.js';
 
 router
@@ -13,8 +14,9 @@ router
 		// return res.render('home/booking', { title: 'Booking' });
 	})
 	.post(async (req, res) => {
-		//get booking data
 		const newBookingData = req.body;
+
+		// TODO: add session for bookedBy field
 
 		const errors = [];
 
@@ -85,10 +87,10 @@ router
 router
 	.route('/:bookingId')
 	.get(async (req, res) => {
-		//get bookingId
+		// Get bookingId
 		let { bookingId } = req.params;
 
-		//validation
+		// Validation
 		try {
 			bookingId = checkId(bookingId, 'bookingId');
 		} catch (e) {
@@ -97,62 +99,107 @@ router
 
 		try {
 			const booking = await bookingData.get(bookingId);
+
 			return res.send({ booking });
 		} catch (e) {
-			return res.status(500).send({ error: e.message });
+			return res.status(e.status || 500).send({ error: e.message });
 		}
 	})
 	.put(async (req, res) => {
-		//get bookingId
 		let { bookingId } = req.params;
-		//get booking data
-		const bookingData = req.body;
+		const updatedBookingData = req.body;
 
-		//validation
+		const errors = [];
+
+		// Validation
+		// Check room id
 		try {
-			bookingId = checkId(bookingId, 'bookingId');
-			bookingData.roomId = checkId(bookingData.roomId, 'roomId');
-			bookingData.firstName = checkString(bookingData.firstName, 'First Name');
-			bookingData.lastName = checkString(bookingData.lastName, 'Last Name');
-			bookingData.bookedFrom = checkCheckin(bookingData.bookedFrom, 'Booked From');
-			bookingData.bookedTill = checkCheckout(bookingData.bookedTill, 'Booked Till');
+			updatedBookingData.room = checkId(updatedBookingData.room, 'room');
 		} catch (e) {
-			return res.status(400).send({ error: e.message });
+			errors.push(e.message);
 		}
 
-		//update booking
+		// Check user id
+		try {
+			updatedBookingData.bookedBy = checkId(updatedBookingData.bookedBy, 'bookedBy');
+		} catch (e) {
+			errors.push(e.message);
+		}
+
+		// Check booking start date
+		try {
+			updatedBookingData.bookedFrom = checkValidDate(updatedBookingData.bookedFrom, 'bookedFrom');
+		} catch (e) {
+			errors.push(e.message);
+		}
+
+		// Check booking end date
+		try {
+			updatedBookingData.bookedTill = checkValidDate(updatedBookingData.bookedTill, 'bookedTill');
+		} catch (e) {
+			errors.push(e.message);
+		}
+
+		// Check if booking start and end date are atleast 1 day apart
+		try {
+			checkValidDateDifference(updatedBookingData.bookedFrom, updatedBookingData.bookedTill);
+		} catch (e) {
+			errors.push(e.message);
+		}
+
+		// Check if errors exist
+		if (errors.length > 0) {
+			return res.status(400).send({ errors });
+		}
+
+		// Update booking
 		try {
 			const booking = await bookingData.update(
 				bookingId,
-				bookingData.roomId,
-				bookingData.firstName,
-				bookingData.lastName,
-				bookingData.bookedFrom,
-				bookingData.bookedTill
+				updatedBookingData.room,
+				updatedBookingData.bookedBy,
+				updatedBookingData.bookedFrom,
+				updatedBookingData.bookedTill
 			);
+
 			return res.send({ booking });
 		} catch (e) {
-			return res.status(500).send({ error: e.message });
+			return res.status(e.status || 500).send({ error: e.message });
 		}
 	})
 	.delete(async (req, res) => {
-		//get bookingId
 		let { bookingId } = req.params;
-		const bookingData = req.body;
+		const deleteBookingData = req.body;
 
-		//validation
+		const errors = [];
+
+		// Validation
+		// Check booking id
 		try {
 			bookingId = checkId(bookingId, 'bookingId');
 		} catch (e) {
-			return res.status(400).send({ error: e.message });
+			errors.push(e.message);
 		}
 
-		//delete booking
+		// Check last name
 		try {
-			const booking = await bookingData.cancel(bookingId, bookingData.lastName);
+			deleteBookingData.lastName = checkValidName(deleteBookingData.lastName, 'lastName');
+		} catch (e) {
+			errors.push(e.message);
+		}
+
+		// Check if errors exist
+		if (errors.length > 0) {
+			return res.status(400).send({ errors });
+		}
+
+		// Delete booking
+		try {
+			const booking = await bookingData.cancel(bookingId, deleteBookingData.lastName);
+
 			return res.send({ booking });
 		} catch (e) {
-			return res.status(500).send({ error: e.message });
+			return res.status(e.status || 500).send({ error: e.message });
 		}
 	});
 

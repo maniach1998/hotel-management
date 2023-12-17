@@ -2,6 +2,10 @@ import dayjs from 'dayjs';
 import { ObjectId } from 'mongodb';
 let checkin = null;
 
+// Plugin for strict date validation
+import customParseFormat from 'dayjs/plugin/customParseFormat.js';
+dayjs.extend(customParseFormat);
+
 function checkString(value, name) {
 	if (!value || typeof value !== 'string')
 		throw new Error(`\`${name}\` must be a non-empty string!`);
@@ -117,7 +121,7 @@ function checkValidDate(dateString, name) {
 	if (!dateRegex.test(dateString))
 		throw new Error(`\`${name}\` is not a valid date in MM/DD/YYYY format!`);
 
-	const dateObject = dayjs(dateString, 'MM/DD/YYYY');
+	const dateObject = dayjs(dateString, 'MM/DD/YYYY', true);
 
 	if (!dateObject.isValid()) throw new Error(`\`${name}\` is not a valid date!`);
 	if (!dateObject.isAfter(new dayjs()))
@@ -127,11 +131,14 @@ function checkValidDate(dateString, name) {
 }
 
 function checkValidDateDifference(startDate, endDate) {
-	const startDateObject = dayjs(startDate, 'MM/DD/YYYY');
-	const endDateObject = dayjs(endDate, 'MM/DD/YYYY');
+	const startDateObject = dayjs(startDate, 'MM/DD/YYYY', true);
+	const endDateObject = dayjs(endDate, 'MM/DD/YYYY', true);
+
+	if (startDateObject.isSame(endDateObject))
+		throw new Error('`startDate` and `endDate` cannot be the same date!');
 
 	if (!endDateObject.isAfter(startDateObject))
-		throw new Error('`endDate` cannot be later than `startDate`!');
+		throw new Error('`startDate` cannot be later than `endDate`!');
 
 	if (endDateObject.diff(startDateObject, 'days') < 1)
 		throw new Error('`endDate` should be atleast 1 day later than `startDate`!');
