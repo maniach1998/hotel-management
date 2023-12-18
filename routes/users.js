@@ -2,7 +2,7 @@ import { Router } from "express";
 const router = Router();
 
 import { userData } from "../data/index.js";
-import { userDataFunction } from "../data/index.js";
+//import { userDataFunction } from "../data/index.js";
 
 router.route("/").get(async (req, res) => {
 	// only for time-being testing purposes
@@ -16,11 +16,11 @@ router.route("/").get(async (req, res) => {
 	}
 });
 
-router.route("/:userId").get(async (req, res) => {
-	// TODO: get user profile using userId
-});
+// router.route("/:userId").get(async (req, res) => {
+// 	// TODO: get user profile using userId
+// });
 
-router.route("/userprofile").get(async (req, res) => {
+router.route("/hotels/userprofile").get(async (req, res) => {
 	try {
 		const userprofile = await userData.getProfile();
 		return userprofile;
@@ -37,3 +37,5 @@ router
 	.patch(async (req, res) => {
 		//Post a form with the updated changes in the user details
 	});
+
+export default router;
