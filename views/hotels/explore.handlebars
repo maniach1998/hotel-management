@@ -1,24 +1,47 @@
 <link rel="stylesheet" href="/public/css/explorehotel.css">
-<h1>Explore hotels</h1>
+<header>
+  <h1>Explore hotels</h1>
+  <nav>
+    <ul>
+      <li><a href="/userprofile" id="user-profile">User Profile</a></li>
+      <li><a href="/logout" id="logout">Logout</a> </li>
+    </ul>
+  </nav>
+</header>
+
 <p>A collection of all our hotels, for you to explore</p>
 
-<ul class="hotels-list">
-  {{#each hotels}}
-  <li id="{{{this._id}}}">
-    <a href="/hotels/{{this._id}}">
-      <h2>{{this.name}}</h2>
-    </a>
+<body>
+  <ul class="hotels-list">
+    {{#each hotels}}
+    <li id="{{{this._id}}}">
+      <a href="/hotels/{{this._id}}">
+        <h2>{{this.name}}</h2>
+      </a>
 
-    {{#if this.description}}
-    <p>{{this.description}}</p>
-    {{else}}
-    <p>No description</p>
-    {{/if}}
+      {{#if this.description}}
+      <p>{{this.description}}</p>
+      {{else}}
+      <p>No description</p>
+      {{/if}}
 
-    <p>Rating: <a href="/hotels/{{this._id}}/#reviews"><strong>{{this.rating}}</strong>⭐</a>,
-      <a href="/hotels/{{this._id}}/#comments">{{this.comments.length}}</a> comments
-    </p>
+      <p>Rating: <a href="/hotels/{{this._id}}/#reviews"><strong>{{this.rating}}</strong>⭐</a>,
+        <a href="/hotels/{{this._id}}/#comments">{{this.comments.length}}</a> comments
+      </p>
 
-  </li>
-  {{/each}}
-</ul>
+    </li>
+    {{/each}}
+  </ul>
+</body>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const userProfileButton = document.getElementById('user-profile');
+
+    userProfileButton.addEventListener('click', function () {
+      window.location.href = '/userprofile';
+    });
+  });
+
+
+</script>

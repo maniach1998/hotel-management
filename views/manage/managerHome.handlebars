@@ -1,6 +1,11 @@
-<h1>Welcome back, {{manager.firstName}}!</h1>
+<link rel="stylesheet" href="/public/css/hotel.css">
+<header>
+  <h1>Welcome back, {{manager.firstName}}!</h1>
 
-<h2>Hotels you manage</h2>
+  <h2>Hotels you manage</h2>
+  <li><a href="/logout" id="logout">Logout</a> </li>
+</header>
+
 <button onclick="createHotel()">Create hotel</button>
 
 {{#if hotels.length}}
@@ -26,4 +31,11 @@
   function createHotel() {
     window.location.href = '/manage/create'
   }
+  document.addEventListener('DOMContentLoaded', function () {
+    const userProfileButton = document.getElementById('user-profile');
+
+    userProfileButton.addEventListener('click', function () {
+      window.location.href = '/userprofile';
+    });
+  });
 </script>
