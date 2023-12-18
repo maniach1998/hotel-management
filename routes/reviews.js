@@ -78,7 +78,7 @@ router
 
 			return res.send({ review });
 		} catch (e) {
-			return res.status(e.status).send({ error: e.message });
+			return res.status(e.status || 500).send({ error: e.message });
 		}
 	});
 
@@ -116,7 +116,7 @@ router
 
 			return res.send({ review });
 		} catch (e) {
-			return res.status(e.status).send({ error: e.message });
+			return res.status(e.status || 500).send({ error: e.message });
 		}
 	})
 	.patch(async (req, res) => {
@@ -171,7 +171,7 @@ router
 
 			return res.send({ review });
 		} catch (e) {
-			return res.status(e.status).send({ error: e.message });
+			return res.status(e.status || 500).send({ error: e.message });
 		}
 	})
 	.delete(async (req, res) => {
@@ -206,7 +206,7 @@ router
 
 			return res.send({ review });
 		} catch (e) {
-			return res.status(e.status).send({ error: e.message });
+			return res.status(e.status || 500).send({ error: e.message });
 		}
 	});
 

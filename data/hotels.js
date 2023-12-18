@@ -1,7 +1,14 @@
 import { ObjectId } from 'mongodb';
-import { checkId, checkNumber, checkString } from '../helpers.js';
+import {
+	checkId,
+	checkNumber,
+	checkString,
+	checkValidDate,
+	checkValidDateDifference,
+} from '../helpers.js';
 import Hotel from '../schema/Hotel.js';
 import User from '../schema/User.js';
+import Booking from '../schema/Booking.js';
 
 const create = async (name, description, manager) => {
 	// Validation
@@ -40,13 +47,23 @@ const get = async (hotelId) => {
 	return hotel;
 };
 
-const update = async (hotelId, name, description) => {
-	// TODO: check if manager and updater is the same user
-
+const update = async (hotelId, managerId, name, description) => {
 	// Validation
 	hotelId = checkId(hotelId, 'Hotel Id');
+	managerId = checkId(managerId, 'Manager Id');
 	name = checkString(name, 'Name');
 	description = checkString(description, 'Description');
+
+	const hotel = await Hotel.findById(hotelId);
+	if (!hotel) throw { status: 404, message: "Couldn't find this hotel!" };
+
+	// Check if manager and updater is the same user
+	const isHotelManager = new ObjectId(hotel.manager).equals(managerId);
+	if (!isHotelManager)
+		throw {
+			status: 403,
+			message: 'Forbidden: Only the manager of this hotel can perform this action!',
+		};
 
 	// Update the hotel with new content
 	const updatedhotel = await Hotel.findByIdAndUpdate(
@@ -63,11 +80,21 @@ const update = async (hotelId, name, description) => {
 	return updatedhotel.populate('manager');
 };
 
-const remove = async (hotelId) => {
-	// TODO: check if manager and deleter is the same user
-
+const remove = async (hotelId, managerId) => {
 	// Validation
 	hotelId = checkId(hotelId, 'Hotel Id');
+	managerId = checkId(managerId, 'Manager Id');
+
+	const hotel = await Hotel.findById(hotelId);
+	if (!hotel) throw { status: 404, message: "Couldn't find this hotel!" };
+
+	// Check if manager and updater is the same user
+	const isHotelManager = new ObjectId(hotel.manager).equals(managerId);
+	if (!isHotelManager)
+		throw {
+			status: 403,
+			message: 'Forbidden: Only the manager of this hotel can perform this action!',
+		};
 
 	// Find and delete the hotel
 	const deletedhotel = await Hotel.findByIdAndDelete(hotelId);
@@ -109,10 +136,10 @@ const getAllManaged = async (managerId) => {
 	return hotels;
 };
 
-const createRoom = async (hotelId, type, number, capacity, price) => {
-	// TODO: check for manager
+const createRoom = async (hotelId, managerId, type, number, capacity, price) => {
 	// Validation
 	hotelId = checkId(hotelId, 'Hotel Id');
+	managerId = checkId(managerId, 'Manager Id');
 	type = checkString(type, 'Type');
 	number = checkNumber(number, 'Number');
 	capacity = checkNumber(capacity, 'Capacity');
@@ -124,6 +151,14 @@ const createRoom = async (hotelId, type, number, capacity, price) => {
 		throw {
 			status: 404,
 			message: "Hotel with this hotelId doesn't exist!",
+		};
+
+	// Check if manager and updater is the same user
+	const isHotelManager = new ObjectId(hotel.manager).equals(managerId);
+	if (!isHotelManager)
+		throw {
+			status: 403,
+			message: 'Forbidden: Only the manager of this hotel can perform this action!',
 		};
 
 	// Create new room
@@ -162,9 +197,7 @@ const getRoom = async (hotelId, roomId) => {
 	return room;
 };
 
-const updateRoom = async (hotelId, roomId, type, number, capacity, price) => {
-	// TODO: check if manager and updater is the same user
-
+const updateRoom = async (hotelId, roomId, managerId, type, number, capacity, price) => {
 	// Validation
 	hotelId = checkId(hotelId, 'hotel Id');
 	roomId = checkId(roomId, 'Room Id');
@@ -172,6 +205,7 @@ const updateRoom = async (hotelId, roomId, type, number, capacity, price) => {
 	number = checkNumber(number, 'Number');
 	capacity = checkNumber(capacity, 'Capacity');
 	price = checkNumber(price, 'Price');
+
 	// Update the hotel with new content
 	const hotel = await Hotel.findById(hotelId);
 	if (!hotel)
@@ -182,6 +216,14 @@ const updateRoom = async (hotelId, roomId, type, number, capacity, price) => {
 
 	const room = hotel.rooms.id(roomId);
 	if (!room) throw { status: 404, message: "Couldn't find this room!" };
+
+	// Check if manager and updater is the same user
+	const isHotelManager = new ObjectId(hotel.manager).equals(managerId);
+	if (!isHotelManager)
+		throw {
+			status: 403,
+			message: 'Forbidden: Only the manager of this hotel can perform this action!',
+		};
 
 	// Update room data
 	room.set({ type, number, capacity, price });
@@ -198,12 +240,19 @@ const updateRoom = async (hotelId, roomId, type, number, capacity, price) => {
 	return updatedroom;
 };
 
-const removeRoom = async (hotelId, roomId) => {
+const removeRoom = async (hotelId, roomId, managerId) => {
 	// Validation
-	hotelId = checkId(hotelId, 'hotel Id');
+	hotelId = checkId(hotelId, 'Hotel Id');
+	managerId = checkId(managerId, 'Manager Id');
 	roomId = checkId(roomId, 'Room Id');
 
-	// TODO: check if manager and deleter is the same user
+	// Check if manager and updater is the same user
+	const isHotelManager = new ObjectId(hotel.manager).equals(managerId);
+	if (!isHotelManager)
+		throw {
+			status: 403,
+			message: 'Forbidden: Only the manager of this hotel can perform this action!',
+		};
 
 	const hotel = await Hotel.findById(hotelId);
 	if (!hotel)
@@ -246,6 +295,56 @@ const getAllRooms = async (hotelId) => {
 	return { hotel, rooms: hotel.rooms };
 };
 
+const isRoomAvailable = async (roomId, requestedFrom, requestedTill) => {
+	// Checks if bookings for this room exist within date range requestedFrom-requestedTill
+
+	// Validation
+	roomId = checkId(roomId, 'Room Id');
+	requestedFrom = checkValidDate(requestedFrom, 'Requested From');
+	requestedTill = checkValidDate(requestedTill, 'Requested Till');
+	const [requestedFromObject, requestedTillObject] = checkValidDateDifference(
+		requestedFrom,
+		requestedTill
+	);
+
+	const roomBookings = await Booking.find({ room: roomId })
+		.where('bookedFrom')
+		.lt(requestedTillObject.toISOString())
+		.where('bookedTill')
+		.gt(requestedFromObject.toISOString())
+		.exec();
+
+	return roomBookings.length === 0 ? true : false;
+};
+
+const getAllAvailableRooms = async (hotelId, bookedFrom, bookedTill) => {
+	// Validation
+	hotelId = checkId(hotelId, 'Hotel Id');
+	bookedFrom = checkValidDate(bookedFrom, 'Booked From');
+	bookedTill = checkValidDate(bookedTill, 'Booked Till');
+	const [bookedFromObject, bookedTillObject] = checkValidDateDifference(bookedFrom, bookedTill);
+
+	// Check if hotel exists
+	const hotel = await Hotel.findById(hotelId);
+	if (!hotel) throw { status: 404, message: "Hotel with this `hotelId` doesn't exist!" };
+
+	const parsedRooms = hotel.rooms.map((room) => room.toJSON());
+
+	// Check available rooms at selected dates
+	const availableRooms = await Promise.all(
+		parsedRooms.filter(async (room) => {
+			const isAvailable = await isRoomAvailable(room._id.toString(), bookedFrom, bookedTill);
+
+			console.log(isAvailable);
+			return isAvailable;
+		})
+	);
+
+	const allAvailableRooms = parsedRooms.filter((value, index) => availableRooms[index]);
+
+	return allAvailableRooms;
+};
+
 export default {
 	create,
 	get,
@@ -258,4 +357,6 @@ export default {
 	updateRoom,
 	removeRoom,
 	getAllRooms,
+	isRoomAvailable,
+	getAllAvailableRooms,
 };

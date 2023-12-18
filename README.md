@@ -1,39 +1,28 @@
-### User data and routes
+# Group 25 Hotel Management
 
-- Dhanesh
-- Dhruvin
+### Group members
 
-### Hotel, comments and reviews data and routes
+- Manas Acharekar
+- Kshitij Gugale
+- Dhruvin Raju Vasani
+- Dhanesh Jagdish Akolu
+- Chen Ye
 
-- Kshitij
-- Manas
+### How to run the project
 
-### Bookings data and routes
-
-- Chen
-- Manas
-
-### Templating
-
-- Everyone
+- Navigate to the project directory using `cd`
+- Run `npm install` to install all required dependencies
+- Check if `.env` file is present. It only has 1 environment variable inside it, named `MONGODB_URI="mongodb://127.0.0.1:27017/Group25_Hotel_Management"`, which links to the MongoDB database URI required to connect to the database when running the app
+- Run `npm run seed` to seed the database with some test data
+- Finally, run `npm start` to start the app. Runs default on port `3000`
 
 ### TODO
 
 - [x] add middlewares for auth
 - [x] setup express-session
-- [ ] add xss
+- [x] add xss
 - [x] add checking for dates using dayjs
 - [x] allow users to post reviews only once per hotel
+- [x] add type checking for room capacity
 - [ ] add type checking helper for optional fields (allows empty string)
-- [ ] add type checking for room capacity
 - [ ] add address and contact info to hotel schema
-- [ ] delete related data when delete function is called (eg. manager acc deleted should also delete created hotels, and hotels bookings)
-- [ ] add name checking that allows "-"" and "'"
-
-### Bookings flow
-
-1. Method one
-
-- create check available rooms method (hotelId, bookFrom, bookTill) which returns all available rooms for that hotel with bookFrom-bookTill date
-- check for every room of that hotel if there is a booking in bookFrom-bookTill range. If booking exists, room is unavailable
-- display available rooms list for users to choose from

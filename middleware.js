@@ -28,7 +28,7 @@ async function checkManager(req, res, next) {
 		if (req.session.user.accountType === 'hotel') {
 			next();
 		} else {
-			req.session.error = { status: 403, message: 'Forbidden, cannot access this page!' };
+			req.session.error = { code: 403, message: 'Forbidden, cannot access this page!' };
 			return res.redirect('/error');
 		}
 	} else {

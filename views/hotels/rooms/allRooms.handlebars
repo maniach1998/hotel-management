@@ -3,11 +3,21 @@
 <h2>Rooms at {{hotel.name}}</h2>
 <p>See all the rooms that are available at {{hotel.name}}</p>
 
+<form action="/hotels/{{hotel._id}}/rooms" method="post">
+  <label for="startDate">Check in date</label>
+  <input type="date" name="startDate" id="startDate">
+
+  <label for="endDate">Check out date</label>
+  <input type="date" name="endDate" id="endDate">
+
+  <button type="submit">Check available rooms</button>
+</form>
+
 {{#each rooms as |room|}}
 <div id="{{room._id}}">
   <p>Name: {{room.type}}</p>
   <p>Price (per night): ${{room.price}}</p>
-  
+
   {{#if room.bookedBy}}
   <p>Not available</p>
   {{else}}
