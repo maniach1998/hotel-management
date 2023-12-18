@@ -1,0 +1,80 @@
+/* Style for the entire body to create a uniform background and font */
+body {
+	font-family: "Arial", sans-serif;
+	background-color: #f4f4f4; /* Light grey background */
+	color: #333; /* Dark grey color for text */
+	margin: 0;
+	padding: 20px;
+	display: flex;
+	flex-direction: column;
+	align-items: center; /* Center align the content */
+}
+
+/* Main heading */
+h1 {
+	color: #5d5c61; /* Soft dark color */
+	margin: 20px 0;
+	font-size: 36px; /* Larger font size for the hotel name */
+}
+
+/* Paragraphs for descriptions and other details */
+p {
+	color: #666; /* Medium grey for text */
+	line-height: 1.6; /* More readable line height */
+	margin: 10px 0;
+}
+
+/* Strong tag for important items like ratings */
+strong {
+	color: #ffd700; /* Gold color for ratings */
+}
+
+/* Star icon adjustment */
+.star-icon {
+	color: #ffd700; /* Gold color for the star */
+}
+
+/* Check availability button styling */
+button {
+	background-color: #5d5c61; /* Soft dark background */
+	color: white;
+	border: none;
+	border-radius: 4px;
+	padding: 10px 20px;
+	margin: 20px 0;
+	cursor: pointer;
+	transition: background-color 0.3s ease;
+}
+
+button:hover {
+	background-color: #41454b; /* Darken button on hover */
+}
+
+/* Section headings for reviews and comments */
+h3 {
+	border-bottom: 1px solid #eaeaea; /* Subtle line under the heading */
+	padding-bottom: 5px;
+	color: #5d5c61;
+	margin: 20px 0;
+}
+
+/* Individual review and comment containers */
+div[id] {
+	background-color: #ffffff;
+	padding: 15px;
+	margin: 10px 0;
+	border-radius: 8px;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Author names */
+h5 {
+	color: #333;
+	margin-bottom: 5px;
+}
+
+/* Posted on dates */
+p.date-posted {
+	font-size: 0.8rem;
+	color: #888;
+}

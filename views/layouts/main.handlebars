@@ -13,7 +13,9 @@
 
 <body>
   <nav>
-    <li><a href="/logout" id="logout-button" class="logout-button">logout</a></li>
+    {{#if req.session.user}}
+    <li><a href="/logout" id="logout-button" class="logout-button">Logout</a></li>
+    {{/if}}
   </nav>
   <main>
     {{{body}}}
