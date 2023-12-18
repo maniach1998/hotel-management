@@ -3,7 +3,7 @@
   <h1>Explore hotels</h1>
   <nav>
     <ul>
-      <li><a href="/userprofile" id="user-profile">User Profile</a></li>
+      <li><a href="/users/hotels/userprofile" id="user-profile">User Profile</a></li>
       <li><a href="/logout" id="logout">Logout</a> </li>
     </ul>
   </nav>
@@ -39,7 +39,7 @@
     const userProfileButton = document.getElementById('user-profile');
 
     userProfileButton.addEventListener('click', function () {
-      window.location.href = '/users/userprofile';
+      window.location.href = '/userprofile';
     });
   });
 

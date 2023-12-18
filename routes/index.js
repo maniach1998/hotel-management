@@ -14,6 +14,7 @@ const configRoutes = (app) => {
 	app.use("/hotels", hotelRoutes);
 	app.use("/hotels", reviewRoutes);
 	app.use("/bookings", bookingRoutes);
+	
 
 	app.use("*", (req, res) => {
 		return res.status(404).send({ error: "Not found!" });

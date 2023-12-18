@@ -138,7 +138,7 @@ const getProfile = async (userId) => {
 	userId = checkId(userId, "User Id");
 
 	// Find and return the user
-	const user = await user.findById(userId).populate("user");
+	const user = await User.findById(userId).populate("user");
 	if (!user) throw { status: 404, message: "Couldn't find this user!" };
 
 	const userbooking = await Booking.findById(userId);
