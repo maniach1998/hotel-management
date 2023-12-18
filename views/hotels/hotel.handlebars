@@ -2,26 +2,26 @@
 <h1>{{hotel.name}}</h1>
 
 {{#if hotel.description}}
-<p>{{hotel.description}}</p>
+<h2>{{hotel.description}}</h2>
 {{else}}
 <p>No description</p>
 {{/if}}
 
 <p>Rating: <strong>{{hotel.rating}}⭐</strong></p>
-<p>Available Rooms: {{availableRooms.length}}</p>
+<p>Available Rooms: {{rooms.length}}</p>
 
-{{#if availableRooms.length}}
+{{#if rooms.length}}
 <button onclick="handleClick('{{hotel._id}}')">Check availability</button>
 {{/if}}
 
 <h3 id="reviews">Reviews</h3>
 {{#if hotel.reviews.length}}
+<h5>For privacy reasons, we keep our reviews anonymous 👺</h5>
 {{#each hotel.reviews}}
 <div id="{{this._id}}">
-  <h5>{{this.author}}</h5>
-  <p>Rating: <strong>{{this.rating}}⭐</strong></p>
+  <h4>Rating: <strong>{{this.rating}}⭐</strong></h4>
   <p>{{this.content}}</p>
-  <p>Posted on: {{this.createdAt}}</p>
+  <small>Posted on: {{this.createdAt}}</small>
 </div>
 
 {{/each}}

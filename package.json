@@ -19,7 +19,8 @@
 		"express-handlebars": "^7.1.2",
 		"express-session": "^1.17.3",
 		"mongodb": "^6.1.0",
-		"mongoose": "^8.0.0"
+		"mongoose": "^8.0.0",
+		"xss": "^1.0.14"
 	},
 	"devDependencies": {
 		"nodemon": "^3.0.1"

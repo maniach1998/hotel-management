@@ -4,6 +4,7 @@ import Booking from '../schema/Booking.js';
 import Hotel from '../schema/Hotel.js';
 import User from '../schema/User.js';
 import { checkId, checkString, checkValidDate, checkValidDateDifference } from '../helpers.js';
+import hotelData from './hotels.js';
 
 // Create a booking
 const create = async (hotelId, roomId, bookedBy, bookedFrom, bookedTill) => {
@@ -28,7 +29,7 @@ const create = async (hotelId, roomId, bookedBy, bookedFrom, bookedTill) => {
 	if (!user) throw { status: 404, message: "User with this `userId` doesn't exist!" };
 
 	// Check if room is booked
-	const roomAvailability = await isRoomAvailable(roomId, bookedFrom, bookedTill);
+	const roomAvailability = await hotelData.isRoomAvailable(roomId, bookedFrom, bookedTill);
 	if (!roomAvailability)
 		throw { status: 400, message: 'This room is unavailable between requested dates!' };
 
@@ -93,7 +94,7 @@ const update = async (bookingId, roomId, bookedBy, bookedFrom, bookedTill) => {
 	if (!isSameUser) throw { status: 403, message: 'Cannot update this booking!' };
 
 	// Check if room is booked for the new requested dates bookedFrom-bookedTill
-	const roomAvailability = await isRoomAvailable(roomId, bookedFrom, bookedTill);
+	const roomAvailability = await hotelData.isRoomAvailable(roomId, bookedFrom, bookedTill);
 	if (!roomAvailability)
 		throw { status: 400, message: 'This room is unavailable between requested dates!' };
 
@@ -164,51 +165,4 @@ const get = async (bookingId) => {
 	return booking.populate(['hotel', 'bookedBy']);
 };
 
-const getAllAvailableRooms = async (hotelId, bookedFrom, bookedTill) => {
-	//validation
-	hotelId = checkId(hotelId, 'Hotel Id');
-	bookedFrom = checkValidDate(bookedFrom, 'Booked From');
-	bookedTill = checkValidDate(bookedTill, 'Booked Till');
-	const [bookedFromObject, bookedTillObject] = checkValidDateDifference(bookedFrom, bookedTill);
-
-	//check if hotel exists
-	const hotel = await Hotel.findById(hotelId);
-	if (!hotel) throw { status: 404, message: "Hotel with this `hotelId` doesn't exist!" };
-
-	//check available rooms at selteced dates
-	const availableRooms = hotel.rooms.filter((room) => {
-		if (
-			!room.bookedFrom &&
-			!room.bookedTill &&
-			dayjs(room.bookedFrom).isBefore(bookedFrom, 'hour') &&
-			dayjs(room.bookedTill).isAfter(bookedTill, 'hour')
-		)
-			return room;
-	});
-
-	return availableRooms;
-};
-
-const isRoomAvailable = async (roomId, requestedFrom, requestedTill) => {
-	// Checks if bookings for this room exist within date range requestedFrom-requestedTill
-
-	// Validation
-	roomId = checkId(roomId, 'Room Id');
-	requestedFrom = checkValidDate(requestedFrom, 'Requested From');
-	requestedTill = checkValidDate(requestedTill, 'Requested Till');
-	const [requestedFromObject, requestedTillObject] = checkValidDateDifference(
-		requestedFrom,
-		requestedTill
-	);
-
-	const roomBookings = await Booking.find({ room: roomId })
-		.where('bookedFrom')
-		.lt(requestedTillObject.toISOString())
-		.where('bookedTill')
-		.gt(requestedFromObject.toISOString())
-		.exec();
-
-	return roomBookings.length === 0 ? true : false;
-};
-
-export default { create, update, cancel, get, getAllAvailableRooms, isRoomAvailable };
+export default { create, update, cancel, get };

@@ -11,7 +11,6 @@ router
 		const bookings = await Booking.find().populate(['hotel', 'hotel.room', 'bookedBy']);
 
 		return res.send({ bookings });
-		// return res.render('home/booking', { title: 'Booking' });
 	})
 	.post(async (req, res) => {
 		const newBookingData = req.body;

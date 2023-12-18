@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
+import xss from 'xss';
 import { ObjectId } from 'mongodb';
-let checkin = null;
 
 // Plugin for strict date validation
 import customParseFormat from 'dayjs/plugin/customParseFormat.js';
@@ -13,7 +13,7 @@ function checkString(value, name) {
 	value = value.trim();
 	if (value.length === 0) throw new Error(`\`${name}\` cannot be empty string or just spaces!`);
 
-	return value;
+	return xss(value);
 }
 
 function checkId(id, name) {
@@ -23,7 +23,7 @@ function checkId(id, name) {
 	if (id.length === 0) throw new Error(`\`${name}\` cannot be empty string or just spaces!`);
 	if (!ObjectId.isValid(id)) throw new Error(`\`${name}\` is not a valid ObjectId!`);
 
-	return id;
+	return xss(id);
 }
 
 function checkNumber(value, name) {
@@ -45,7 +45,7 @@ function checkValidName(nameString, name) {
 	if (!nameRegex.test(nameString))
 		throw new Error(`\`${name}\` should only contain alphabet characters!`);
 
-	return nameString;
+	return xss(nameString);
 }
 
 function checkValidEmail(emailAddress, name) {
@@ -57,6 +57,8 @@ function checkValidEmail(emailAddress, name) {
 
 	if (!emailRegex.test(emailAddress))
 		throw new Error(`\`${name}\` should be a valid email address!`);
+
+	emailAddress = xss(emailAddress);
 
 	return emailAddress.toLowerCase();
 }
@@ -75,7 +77,7 @@ function checkValidPassword(password, name) {
 			`\`${name}\` should have at least one uppercase character, at least one number and at least one special character, with a minimum of 8 characters!`
 		);
 
-	return password;
+	return xss(password);
 }
 
 function checkValidAccountType(accountType, name) {
@@ -85,7 +87,7 @@ function checkValidAccountType(accountType, name) {
 	if (!['user', 'hotel'].includes(accountType))
 		throw new Error(`\`${name}\` must be either "user" or "hotel"!`);
 
-	return accountType;
+	return xss(accountType);
 }
 
 function checkRating(rating, name) {
@@ -127,7 +129,7 @@ function checkValidDate(dateString, name) {
 	if (!dateObject.isAfter(new dayjs()))
 		throw new Error(`\`${name}\` must be greater than current date!`);
 
-	return dateString;
+	return xss(dateString);
 }
 
 function checkValidDateDifference(startDate, endDate) {
@@ -146,76 +148,11 @@ function checkValidDateDifference(startDate, endDate) {
 	return [startDateObject, endDateObject];
 }
 
-function checkCheckin(value, name) {
-	if (value == null) throw 'All fields need to have valid values 7';
-	if (typeof value !== 'string') throw 'value must be a string';
-	if (value.trim().length === 0) throw 'value cannot be an empty string or string with just spaces';
-	let dobParts = value.split('/');
-	let month = parseFloat(dobParts[0]);
-	let day = parseFloat(dobParts[1]);
-	if (
-		(month === 1 && day < 32) ||
-		(month === 2 && day < 29) ||
-		(month === 3 && day < 32) ||
-		(month === 4 && day < 31) ||
-		(month === 5 && day < 32) ||
-		(month === 6 && day < 31) ||
-		(month === 7 && day < 32) ||
-		(month === 8 && day < 32) ||
-		(month === 9 && day < 31) ||
-		(month === 10 && day < 32) ||
-		(month === 11 && day < 31) ||
-		(month === 12 && day < 32)
-	) {
-	} else throw 'ERROR: Enter a valid checkin date';
-
-	const currentDate = new Date();
-
-	let dob = new Date(dobParts[2], dobParts[0] - 1, dobParts[1]);
-
-	if (currentDate > dob) throw 'checkin date Cannot be in the past';
-
-	checkin = dob;
-}
-function checkCheckout(value, name) {
-	if (value == null) throw 'All fields need to have valid values 7';
-	if (typeof value !== 'string') throw 'value must be a string';
-	if (value.trim().length === 0)
-		throw 'Checkout Date cannot be an empty string or string with just spaces';
-	let dobParts = value.split('/');
-	let month = parseFloat(dobParts[0]);
-	let day = parseFloat(dobParts[1]);
-	if (
-		(month === 1 && day < 32) ||
-		(month === 2 && day < 29) ||
-		(month === 3 && day < 32) ||
-		(month === 4 && day < 31) ||
-		(month === 5 && day < 32) ||
-		(month === 6 && day < 31) ||
-		(month === 7 && day < 32) ||
-		(month === 8 && day < 32) ||
-		(month === 9 && day < 31) ||
-		(month === 10 && day < 32) ||
-		(month === 11 && day < 31) ||
-		(month === 12 && day < 32)
-	) {
-	} else throw 'ERROR: Enter a valid Checkout date';
-
-	const currentDate = new Date();
-
-	let dob = new Date(dobParts[2], dobParts[0] - 1, dobParts[1]);
-
-	if (currentDate > dob) throw 'Checkout date Has to be in Future';
-	if (checkin > dob) throw 'Checkout date Has to be after the Checkin Date';
-}
-
 export {
 	checkString,
 	checkId,
 	checkNumber,
 	checkRating,
-	checkCheckin,
-	checkCheckout,
 	checkValidDate,
 	checkValidDateDifference,
 	calculateAverageRating,

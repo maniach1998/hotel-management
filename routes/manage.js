@@ -3,10 +3,9 @@ const router = Router();
 
 import { hotelData } from '../data/index.js';
 import { checkId, checkString, checkNumber } from '../helpers.js';
-import { checkAuthorized } from '../middleware.js';
+import { checkAuthorized, checkManager } from '../middleware.js';
 
-router.route('/').get(checkAuthorized, async (req, res) => {
-	// TODO: add middleware to check if session user is a manager ("hotel" account type)
+router.route('/').get(checkAuthorized, checkManager, async (req, res) => {
 	const manager = req.session.user;
 
 	try {
@@ -25,8 +24,7 @@ router.route('/').get(checkAuthorized, async (req, res) => {
 
 router
 	.route('/create')
-	.get(checkAuthorized, async (req, res) => {
-		// TODO: add middleware to check if session user is a manager ("hotel" account type)
+	.get(checkAuthorized, checkManager, async (req, res) => {
 		const manager = req.session.user;
 
 		return res.render('manage/createHotel', {
@@ -34,13 +32,9 @@ router
 			manager,
 		});
 	})
-	.post(checkAuthorized, async (req, res) => {
-		// TODO: add middleware to check if session user is a manager ("hotel" account type)
+	.post(checkAuthorized, checkManager, async (req, res) => {
 		const manager = req.session.user;
 		const newHotelData = req.body;
-
-		// unauthorized user -> redirect to '/error' (status code 403)
-		// authorized user -> check if accountType is 'hotel' -> else redirect to '/error' (status code 403)
 
 		const errors = [];
 
@@ -76,7 +70,6 @@ router
 				manager._id
 			);
 
-			// TODO: redirect to create rooms for this hotel
 			return res.redirect(`/manage/${hotel._id}/rooms`);
 		} catch (e) {
 			console.log(e);
@@ -86,7 +79,7 @@ router
 
 router
 	.route('/:hotelId')
-	.get(checkAuthorized, async (req, res) => {
+	.get(checkAuthorized, checkManager, async (req, res) => {
 		let hotelId = req.params.hotelId;
 		const manager = req.session.user;
 
@@ -114,11 +107,11 @@ router
 				formData,
 			});
 		} catch (e) {
-			req.session.error = { code: e.status, message: e.message };
+			req.session.error = { code: e.status || 500, message: e.message };
 			return res.redirect('/error');
 		}
 	})
-	.put(checkAuthorized, async (req, res) => {
+	.put(checkAuthorized, checkManager, async (req, res) => {
 		let hotelId = req.params.hotelId;
 		const updatedHotelData = req.body;
 		const manager = req.session.user;
@@ -163,18 +156,20 @@ router
 		try {
 			const hotel = await hotelData.update(
 				hotelId,
+				manager._id,
 				updatedHotelData.name,
 				updatedHotelData.description
 			);
 
 			return res.send({ hotel });
 		} catch (e) {
-			return res.status(e.status).send({ error: e.message });
+			return res.status(e.status || 500).send({ error: e.message });
 		}
 	})
-	.delete(async (req, res) => {
+	.delete(checkAuthorized, checkManager, async (req, res) => {
 		// return deleted hotel
 		let { hotelId } = req.params;
+		const manager = req.session.user;
 
 		const errors = [];
 		// Check hotel id
@@ -190,19 +185,18 @@ router
 		}
 
 		try {
-			const hotel = await hotelData.delete(hotelId);
+			const hotel = await hotelData.remove(hotelId, manager._id);
 
 			return res.send({ hotel });
 		} catch (e) {
-			req.session.error = { code: e.status, message: e.message };
+			req.session.error = { code: e.status || 500, message: e.message };
 			return res.redirect('/error');
 		}
 	});
 
 router
 	.route('/:hotelId/rooms')
-	.get(checkAuthorized, async (req, res) => {
-		// TODO: add middleware to check if session user is a manager ("hotel" account type)
+	.get(checkAuthorized, checkManager, async (req, res) => {
 		let hotelId = req.params.hotelId;
 		const manager = req.session.user;
 
@@ -226,12 +220,11 @@ router
 				rooms: parsedRooms,
 			});
 		} catch (e) {
-			req.session.error = { code: e.status, message: e.message };
+			req.session.error = { code: e.status || 500, message: e.message };
 			return res.redirect('/error');
 		}
 	})
-	.post(checkAuthorized, async (req, res) => {
-		// TODO: add middleware to check if session user is a manager ("hotel" account type)
+	.post(checkAuthorized, checkManager, async (req, res) => {
 		let { hotelId } = req.params;
 		const manager = req.session.user;
 		const newRoomData = req.body;
@@ -276,6 +269,7 @@ router
 		try {
 			const room = await hotelData.createRoom(
 				hotelId,
+				manager._id,
 				newRoomData.type,
 				newRoomData.number,
 				newRoomData.capacity,
@@ -286,13 +280,13 @@ router
 		} catch (e) {
 			console.log(e);
 			// TODO: redirect to error
-			return res.status(e.status).send({ error: e.message });
+			return res.status(e.status || 500).send({ error: e.message });
 		}
 	});
 
 router
 	.route('/:hotelId/rooms/:roomId')
-	.get(checkAuthorized, async (req, res) => {
+	.get(checkAuthorized, checkManager, async (req, res) => {
 		let { hotelId, roomId } = req.params;
 
 		const errors = [];
@@ -324,12 +318,13 @@ router
 				room: room.toJSON(),
 			});
 		} catch (e) {
-			req.session.error = { code: e.status, message: e.message };
+			req.session.error = { code: e.status || 500, message: e.message };
 			return res.redirect('/error');
 		}
 	})
-	.put(checkAuthorized, async (req, res) => {
+	.put(checkAuthorized, checkManager, async (req, res) => {
 		let { hotelId, roomId } = req.params;
+		const manager = req.session.user;
 		const updatedRoomData = req.body;
 
 		const errors = [];
@@ -384,6 +379,7 @@ router
 			const room = await hotelData.updateRoom(
 				hotelId,
 				roomId,
+				manager._id,
 				updatedRoomData.type,
 				updatedRoomData.number,
 				updatedRoomData.capacity,
@@ -392,11 +388,12 @@ router
 
 			return res.send({ room });
 		} catch (e) {
-			return res.status(e.status).send({ error: e.message });
+			return res.status(e.status || 500).send({ error: e.message });
 		}
 	})
-	.delete(async (req, res) => {
+	.delete(checkAuthorized, checkManager, async (req, res) => {
 		let { hotelId, roomId } = req.params;
+		const manager = req.session.user;
 
 		try {
 			hotelId = checkId(hotelId, 'hotel');
@@ -411,11 +408,11 @@ router
 		}
 
 		try {
-			const room = await hotelData.removeRoom(hotelId, roomId);
+			const room = await hotelData.removeRoom(hotelId, roomId, manager._id);
 
 			return res.send({ room });
 		} catch (e) {
-			return res.status(e.status).send({ error: e.message });
+			return res.status(e.status || 500).send({ error: e.message });
 		}
 	});
 

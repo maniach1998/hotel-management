@@ -2,164 +2,58 @@ import { Router } from 'express';
 const router = Router();
 
 import { hotelData, commentData } from '../data/index.js';
-import { checkId, checkString, checkNumber } from '../helpers.js';
+import { checkId, checkString, checkValidDate, checkValidDateDifference } from '../helpers.js';
 
-router
-	.route('/')
-	.get(async (req, res) => {
-		try {
-			const hotels = await hotelData.getAll();
+router.route('/').get(async (req, res) => {
+	try {
+		const hotels = await hotelData.getAll();
 
-			return res.render('hotels/explore', {
-				title: 'Explore Hotels',
-				hotels: hotels.map((hotel) => hotel.toJSON()),
-			});
-		} catch (e) {
-			return res.status(500).send({ error: e.message });
-		}
-	})
-	.post(async (req, res) => {
-		const newHotelData = req.body;
+		return res.render('hotels/explore', {
+			title: 'Explore Hotels',
+			hotels: hotels.map((hotel) => hotel.toJSON()),
+		});
+	} catch (e) {
+		return res.status(500).send({ error: e.message });
+	}
+});
 
-		if (newHotelData === undefined || Object.keys(newHotelData).length === 0)
-			return res.status(400).send({ error: 'No fields provided in request body!' });
+router.route('/:hotelId').get(async (req, res) => {
+	let { hotelId } = req.params;
 
-		// TODO: validate new hotel data
-		// unauthorized user -> redirect to '/error' (status code 403)
-		// authorized user -> check if accountType is 'hotel' -> else redirect to '/error' (status code 403)
-		// invalid data -> re-render form with errors (status code 400)
+	// Check hotel id
+	try {
+		hotelId = checkId(hotelId, 'hotelId');
+	} catch (e) {
+		req.session.error = { code: 400, message: e.message };
+		return res.redirect('/error');
+	}
 
-		// Validation fields-
-		// name: valid string
-		// description: valid string
-		// valid data -> create new hotel and redirect to '/hotels/:hotelId' -> if failed, redirect to '/error' (status code 500)
+	try {
+		const hotel = await hotelData.get(hotelId);
+		const rooms = hotel.rooms;
 
-		// try {
-		// } catch (e) {
-		// 	return res.status(400).send({ error: e.message });
-		// }
-
-		try {
-			const hotel = await hotelData.create(newHotelData.name, newHotelData.manager);
-
-			return res.send(hotel);
-		} catch (e) {
-			console.log(e);
-			return res.status(500).send({ error: e.message });
-		}
-	});
-
-router
-	.route('/:hotelId')
-	.get(async (req, res) => {
-		let { hotelId } = req.params;
-
-		// Check hotel id
-		try {
-			hotelId = checkId(hotelId, 'hotelId');
-		} catch (e) {
-			return res.status(400).send({ error: e.message });
-		}
-
-		try {
-			const hotel = await hotelData.get(hotelId);
-			const availableRooms = hotel.rooms.filter((room) => room.bookedBy === null);
-
-			return res.render('hotels/hotel', {
-				title: hotel.name,
-				hotel: hotel.toJSON(),
-				availableRooms,
-			});
-		} catch (e) {
-			return res.status(e.status).send({ error: e.message });
-		}
-	})
-	.patch(async (req, res) => {
-		// TODO: update a hotel with _id: hotelId
-		// hotelId: valid ObjectId -> check if hotel exists
-		// name: valid string
-		// description: valid string
-		// return updated hotel
-		let { hotelId } = req.params;
-		const updatedHotelData = req.body;
-
-		const errors = [];
-
-		// Check hotel id
-		try {
-			hotelId = checkId(hotelId, 'hotelId');
-		} catch (e) {
-			errors.push(e.message);
-		}
-
-		// Check name
-		try {
-			updatedHotelData.name = checkString(updatedHotelData.name, 'name');
-		} catch (e) {
-			errors.push(e.message);
-		}
-
-		// Check description
-		try {
-			updatedHotelData.description = checkString(updatedHotelData.description, 'description');
-		} catch (e) {
-			errors.push(e.message);
-		}
-
-		// If errors exist, return errors with 400
-		if (errors.length > 0) {
-			return res.status(400).send({ errors });
-		}
-
-		try {
-			const hotel = await hotelData.update(
-				hotelId,
-				updatedHotelData.name,
-				updatedHotelData.description
-			);
-
-			return res.send({ hotel });
-		} catch (e) {
-			return res.status(e.status).send({ error: e.message });
-		}
-	})
-	.delete(async (req, res) => {
-		// TODO: delete a hotel with _id: hotelId if exists
-		// return deleted hotel
-		let { hotelId } = req.params;
-
-		const errors = [];
-		// Check hotel id
-		try {
-			hotelId = checkId(hotelId, 'hotelId');
-		} catch (e) {
-			errors.push(e.message);
-		}
-
-		// If errors exist, return errors with 400
-		if (errors.length > 0) {
-			return res.status(400).send({ errors });
-		}
-
-		try {
-			const hotel = await hotelData.delete(hotelId);
-
-			return res.send({ hotel });
-		} catch (e) {
-			return res.status(e.status).send({ error: e.message });
-		}
-	});
+		return res.render('hotels/hotel', {
+			title: hotel.name,
+			hotel: hotel.toJSON(),
+			rooms,
+		});
+	} catch (e) {
+		req.session.error = { code: e.status, message: e.message };
+		return res.redirect('/error');
+	}
+});
 
 router
 	.route('/:hotelId/rooms')
 	.get(async (req, res) => {
-		// TODO: get all rooms of a hotel with _id: hotelId
+		// Get all rooms of a hotel with _id: hotelId
 		let { hotelId } = req.params;
-		// hotelId: valid ObjectId -> check if hotel exists
+
 		try {
 			hotelId = checkId(hotelId, 'hotel');
 		} catch (e) {
-			return res.status(400).send({ error: e.message });
+			req.session.error = { code: 400, message: e.message };
+			return res.redirect('/error');
 		}
 
 		try {
@@ -172,44 +66,40 @@ router
 				rooms: parsedRooms,
 			});
 		} catch (e) {
-			return res.status(e.status).send({ error: e.message });
+			req.session.error = { code: e.status, message: e.message };
+			return res.redirect('/error');
 		}
-		// return rooms
 	})
 	.post(async (req, res) => {
-		// TODO: create a new Room in hotel with _id: hotelId
+		// TODO: get all available rooms of a hotel within certain date range
 		let { hotelId } = req.params;
-		const newRoomData = req.body;
+		const dateRange = req.body;
 
 		const errors = [];
-		// hotelId: valid ObjectId -> check if hotel exists
+
 		try {
 			hotelId = checkId(hotelId, 'hotel');
 		} catch (e) {
 			errors.push(e.message);
 		}
 
-		// type: valid string
+		// startDate: valid date
 		try {
-			newRoomData.type = checkString(newRoomData.type, 'type');
+			dateRange.startDate = checkValidDate(dateRange.startDate, 'startDate');
 		} catch (e) {
 			errors.push(e.message);
 		}
-		// number: valid number
+
+		// endDate: valid date
 		try {
-			newRoomData.number = checkNumber(newRoomData.number, 'number');
+			dateRange.endDate = checkValidDate(dateRange.endDate, 'endDate');
 		} catch (e) {
 			errors.push(e.message);
 		}
-		// number: valid number
+
+		// check difference in dates
 		try {
-			newRoomData.capacity = checkNumber(newRoomData.capacity, 'capacity');
-		} catch (e) {
-			errors.push(e.message);
-		}
-		// price: valid number
-		try {
-			newRoomData.price = checkNumber(newRoomData.price, 'price');
+			checkValidDateDifference(dateRange.startDate, dateRange.endDate);
 		} catch (e) {
 			errors.push(e.message);
 		}
@@ -220,146 +110,44 @@ router
 
 		// return new room
 		try {
-			const room = await hotelData.createRoom(
+			const rooms = await hotelData.getAllAvailableRooms(
 				hotelId,
-				newRoomData.type,
-				newRoomData.number,
-				newRoomData.capacity,
-				newRoomData.price
+				dateRange.startDate,
+				dateRange.endDate
 			);
+			// const parsedRooms = rooms.map((room) => room.toJSON());
 
-			return res.send({ room });
+			return res.send({ rooms });
 		} catch (e) {
-			console.log(e);
-			return res.status(e.status).send({ error: e.message });
+			req.session.error = { code: e.status, message: e.message };
+			return res.redirect('/error');
 		}
 	});
 
-router
-	.route('/:hotelId/rooms/:roomId')
-	.get(async (req, res) => {
-		// TODO: get room with _id: roomId of a hotel with _id: hotelId
-		// hotelId: valid ObjectId -> check if hotel exists
-		// roomId: valid ObjectId -> check if room exists
-		// return room
+router.route('/:hotelId/rooms/:roomId').get(async (req, res) => {
+	// Get room with _id: roomId of a hotel with _id: hotelId
+	let { hotelId, roomId } = req.params;
 
-		let { hotelId, roomId } = req.params;
+	try {
+		hotelId = checkId(hotelId, 'hotel');
+	} catch (e) {
+		return res.status(400).send({ error: e.message });
+	}
 
-		try {
-			hotelId = checkId(hotelId, 'hotel');
-		} catch (e) {
-			return res.status(400).send({ error: e.message });
-		}
+	try {
+		roomId = checkId(roomId, 'room');
+	} catch (e) {
+		return res.status(400).send({ error: e.message });
+	}
 
-		try {
-			roomId = checkId(roomId, 'room');
-		} catch (e) {
-			return res.status(400).send({ error: e.message });
-		}
+	try {
+		const room = await hotelData.getRoom(hotelId, roomId);
 
-		try {
-			const room = await hotelData.getRoom(hotelId, roomId);
-
-			return res.send({ room });
-		} catch (e) {
-			return res.status(e.status).send({ error: e.message });
-		}
-	})
-	.patch(async (req, res) => {
-		// TODO: update room with _id: roomId in hotel with _id: hotelId
-		// hotelId: valid ObjectId -> check if hotel exists
-		// roomId: valid ObjectId -> check if room exists
-		// Validation fields-
-		// type: valid string (optional)
-		// number: valid number (optional)
-		// price: valid number (optional)
-		// return updated room
-		let { hotelId, roomId } = req.params;
-		const updatedRoomData = req.body;
-
-		const errors = [];
-
-		// Check hotel id
-		try {
-			hotelId = checkId(hotelId, 'hotelId');
-		} catch (e) {
-			errors.push(e.message);
-		}
-		// Check room id
-		try {
-			roomId = checkId(roomId, 'roomId');
-		} catch (e) {
-			errors.push(e.message);
-		}
-
-		// Check type
-		try {
-			updatedRoomData.type = checkString(updatedRoomData.type, 'type');
-		} catch (e) {
-			errors.push(e.message);
-		}
-
-		// Check number
-		try {
-			updatedRoomData.number = checkNumber(updatedRoomData.number, 'number');
-		} catch (e) {
-			errors.push(e.message);
-		}
-
-		// Check price
-		try {
-			updatedRoomData.price = checkNumber(updatedRoomData.price, 'price');
-		} catch (e) {
-			errors.push(e.message);
-		}
-
-		// If errors exist, return errors with 400
-		if (errors.length > 0) {
-			return res.status(400).send({ errors });
-		}
-
-		try {
-			const room = await hotelData.updateRoom(
-				hotelId,
-				roomId,
-				updatedRoomData.type,
-				updatedRoomData.number,
-				updatedRoomData.price
-			);
-
-			return res.send({ room });
-		} catch (e) {
-			return res.status(e.status).send({ error: e.message });
-		}
-	})
-	.delete(async (req, res) => {
-		// TODO: delete room with _id: roomId in hotel with _id: hotelId
-		// hotelId: valid ObjectId -> check if hotel exists
-		// roomId: valid ObjectId -> check if room exists
-		// return deleted room
-
-		let { hotelId, roomId } = req.params;
-
-		try {
-			hotelId = checkId(hotelId, 'hotel');
-		} catch (e) {
-			return res.status(400).send({ error: e.message });
-		}
-
-		try {
-			roomId = checkId(roomId, 'room');
-		} catch (e) {
-			return res.status(400).send({ error: e.message });
-		}
-
-		try {
-			const room = await hotelData.removeRoom(hotelId, roomId);
-
-			return res.send({ room });
-		} catch (e) {
-			return res.status(e.status).send({ error: e.message });
-		}
-	});
+		return res.send({ room });
+	} catch (e) {
+		return res.status(e.status || 500).send({ error: e.message });
+	}
+});
 
 router
 	.route('/:hotelId/comments')
