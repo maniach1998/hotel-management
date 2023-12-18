@@ -33,6 +33,37 @@ async function main() {
   let user5 = undefined;
   let user3 = undefined;
   let user4 = undefined;
+  let hotel1 = undefined;
+  let hotel2 = undefined;
+  let hotel3 = undefined;
+
+  try {
+    hotel1 = await hotelData.create(
+      "Sheraton",
+      "Sheraton is a global hotel brand that is part of the Marriott International group. Sheraton hotels are known for providing upscale accommodations and services, targeting both business and leisure travelers. ",
+      manager1._id
+    );
+  } catch (e) {
+    console.log(e);
+  }
+  try {
+    hotel2 = await hotelData.create(
+      "Conrad",
+      "Conrad Hotels & Resorts is a luxury hotel brand under the Hilton Worldwide portfolio. Known for its sophisticated and upscale accommodations, Conrad caters to discerning travelers seeking premium experiences.",
+      manager2._id
+    );
+  } catch (e) {
+    console.log(e);
+  }
+  try {
+    hotel3 = await hotelData.create(
+      "Marriott",
+      "Marriott Hotels is a globally recognized hotel brand and a flagship part of the Marriott International portfolio. Catering to a diverse range of travelers, Marriott Hotels are known for their commitment to providing comfortable accommodations, modern amenities, and excellent service.",
+      manager3._id
+    );
+  } catch (e) {
+    console.log(e);
+  }
 
   try {
     user1 = await userData.create(
@@ -150,7 +181,18 @@ async function main() {
     console.log(e);
   }
 
-  console.log(user1, user2, manager1, manager2);
+  console.log(
+    user1,
+    user2,
+    user4,
+    user3,
+    user5,
+    manager3,
+    manager5,
+    manager4,
+    manager1,
+    manager2
+  );
 }
 
 await dropDB();
