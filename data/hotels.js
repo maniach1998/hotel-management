@@ -246,19 +246,19 @@ const removeRoom = async (hotelId, roomId, managerId) => {
 	managerId = checkId(managerId, 'Manager Id');
 	roomId = checkId(roomId, 'Room Id');
 
+	const hotel = await Hotel.findById(hotelId);
+	if (!hotel)
+		throw {
+			status: 404,
+			message: "Hotel with this `hotelId` doesn't exist!",
+		};
+
 	// Check if manager and updater is the same user
 	const isHotelManager = new ObjectId(hotel.manager).equals(managerId);
 	if (!isHotelManager)
 		throw {
 			status: 403,
 			message: 'Forbidden: Only the manager of this hotel can perform this action!',
-		};
-
-	const hotel = await Hotel.findById(hotelId);
-	if (!hotel)
-		throw {
-			status: 404,
-			message: "Hotel with this `hotelId` doesn't exist!",
 		};
 
 	const room = hotel.rooms.id(roomId);
