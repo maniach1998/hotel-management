@@ -34,7 +34,10 @@ header {
 nav ul {
 	list-style: none;
 }
-
+.userprofile-button {
+	display: block;
+	margin-right: 20em;
+}
 nav ul li {
 	display: inline;
 	margin-right: 20px;

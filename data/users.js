@@ -1,26 +1,27 @@
-import bcrypt from 'bcrypt';
+import bcrypt from "bcrypt";
 
-import User from '../schema/User.js';
+import User from "../schema/User.js";
 import {
 	checkId,
 	checkValidAccountType,
 	checkValidEmail,
 	checkValidName,
 	checkValidPassword,
-} from '../helpers.js';
-import Booking from '../schema/Booking.js';
+} from "../helpers.js";
+import Booking from "../schema/Booking.js";
 
 const create = async (firstName, lastName, email, password, accountType) => {
 	// Validation
-	firstName = checkValidName(firstName, 'First name');
-	lastName = checkValidName(lastName, 'Last Name');
-	email = checkValidEmail(email, 'Email Address');
-	password = checkValidPassword(password, 'Password');
-	accountType = checkValidAccountType(accountType, 'Account Type');
+	firstName = checkValidName(firstName, "First name");
+	lastName = checkValidName(lastName, "Last Name");
+	email = checkValidEmail(email, "Email Address");
+	password = checkValidPassword(password, "Password");
+	accountType = checkValidAccountType(accountType, "Account Type");
 
 	// Check if user already exists
 	const userExists = await User.findOne({ email });
-	if (userExists) throw { status: 400, message: 'User with this `email` already exists!' };
+	if (userExists)
+		throw { status: 400, message: "User with this `email` already exists!" };
 
 	// Hash password
 	const salt = await bcrypt.genSalt(10);
@@ -42,15 +43,15 @@ const create = async (firstName, lastName, email, password, accountType) => {
 
 const login = async (email, password) => {
 	// Validation
-	email = checkValidEmail(email, 'Email Address');
-	password = checkValidPassword(password, 'Password');
+	email = checkValidEmail(email, "Email Address");
+	password = checkValidPassword(password, "Password");
 
 	// Check if user already exists
 	const userExists = await User.findOne({ email });
 	if (!userExists)
 		throw {
 			status: 400,
-			message: 'Either the email address or password is invalid!',
+			message: "Either the email address or password is invalid!",
 		};
 
 	// Check if password matches
@@ -58,7 +59,7 @@ const login = async (email, password) => {
 	if (!matchPasswords)
 		throw {
 			status: 400,
-			message: 'Either the email address or password is invalid!',
+			message: "Either the email address or password is invalid!",
 		};
 
 	return {
@@ -72,19 +73,21 @@ const login = async (email, password) => {
 
 const update = async (id, firstName, lastName, email, password) => {
 	// Validation
-	id = checkId(id, 'User Id');
-	firstName = checkValidName(firstName, 'First Name');
-	lastName = checkValidName(lastName, 'Last Name');
-	email = checkValidEmail(email, 'Email Address');
-	password = checkValidPassword(password, 'Password');
+	id = checkId(id, "User Id");
+	firstName = checkValidName(firstName, "First Name");
+	lastName = checkValidName(lastName, "Last Name");
+	email = checkValidEmail(email, "Email Address");
+	password = checkValidPassword(password, "Password");
 
 	// Check if user exists
 	const user = await User.findById(id);
-	if (!user) throw { status: 404, message: "User with this `id` doesn't exist!" };
+	if (!user)
+		throw { status: 404, message: "User with this `id` doesn't exist!" };
 
 	// Check if user with new email exists
 	const userWithNewEmail = await User.findOne({ email });
-	if (userWithNewEmail) throw { status: 403, message: 'User with this `email` already exists!' };
+	if (userWithNewEmail)
+		throw { status: 403, message: "User with this `email` already exists!" };
 
 	// Hash the new password
 	const salt = await bcrypt.genSalt(10);
@@ -103,18 +106,19 @@ const update = async (id, firstName, lastName, email, password) => {
 
 const remove = async (id) => {
 	// Validation
-	id = checkId(id, 'User Id');
+	id = checkId(id, "User Id");
 
 	// Check if user exists
 	const user = await User.findByIdAndDelete(id);
-	if (!user) throw { status: 404, message: "User with this `id` doesn't exist!" };
+	if (!user)
+		throw { status: 404, message: "User with this `id` doesn't exist!" };
 
 	return user;
 };
 
 const getUserBookings = async (userId) => {
 	// Validation
-	userId = checkId(userId, 'User Id');
+	userId = checkId(userId, "User Id");
 
 	// Find user and return all bookings
 	const userbooking = await Booking.findById(userId);
@@ -131,10 +135,10 @@ const getUserBookings = async (userId) => {
 
 const getProfile = async (userId) => {
 	// Validation
-	userId = checkId(userId, 'User Id');
+	userId = checkId(userId, "User Id");
 
 	// Find and return the user
-	const user = await user.findById(userId).populate('user');
+	const user = await User.findById(userId).populate("user");
 	if (!user) throw { status: 404, message: "Couldn't find this user!" };
 
 	const userbooking = await Booking.findById(userId);
