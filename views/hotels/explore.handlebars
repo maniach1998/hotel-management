@@ -11,68 +11,36 @@
 
 <p>A collection of all our hotels, for you to explore</p>
 
-<body>
-  <form action="/hotels/search" method="GET">
-    <input type="text" name="name" placeholder="Search by hotel name">
-    <button type="submit">Search</button>
+<form action="/hotels" method="GET">
+  <input type="text" name="name" placeholder="Search by hotel name" value="{{searchTerm}}">
+  <button type="submit">Search</button>
 </form>
-  <ul class="hotels-list">
-    {{#each hotels}}
-    <li id="{{{this._id}}}">
-      <a href="/hotels/{{this._id}}">
-        <h2>{{this.name}}</h2>
-      </a>
 
-      {{#if this.description}}
-      <p>{{this.description}}</p>
-      {{else}}
-      <p>No description</p>
-      {{/if}}
+<ul class="hotels-list">
+  {{#if hotels.length}}
+  {{#each hotels}}
+  <li id="{{{this._id}}}">
+    <a href="/hotels/{{this._id}}">
+      <h2>{{this.name}}</h2>
+    </a>
 
-      <p>Rating: <a href="/hotels/{{this._id}}/#reviews"><strong>{{this.rating}}</strong>⭐</a>,
-        <a href="/hotels/{{this._id}}/#comments">{{this.comments.length}}</a> comments
-      </p>
+    {{#if this.description}}
+    <p>{{this.description}}</p>
+    {{else}}
+    <p>No description</p>
+    {{/if}}
 
-    </li>
-    {{/each}}
-  </ul>
-  <!-- JavaScript for the search form -->
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const searchForm = document.getElementById('searchForm');
+    <p>Rating: <a href="/hotels/{{this._id}}/#reviews"><strong>{{this.rating}}</strong>⭐</a>,
+      <a href="/hotels/{{this._id}}/#comments">{{this.comments.length}}</a> comments
+    </p>
 
-        searchForm.addEventListener('submit', function (event) {
-            event.preventDefault(); // Prevent the default form submission
+  </li>
+  {{/each}}
+  {{else}}
 
-            const searchTerm = searchForm.elements['name'].value;
+  <p>No hotels to show!</p>
 
-            // Perform actions with the search term (e.g., fetch data using fetch API)
-            // Example: Fetch data from server based on search term
-            fetch(`/hotels/search?name=${searchTerm}`)
-                .then(response => response.json())
-                .then(data => {
-                    // Handle the data returned from the search
-                    console.log(data.hotels); // Display or use search results as needed
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                });
-        });
-        
-        // Add any additional logic specific to this template
-        // ...
-    });
-</script>
-</body>
+  {{/if}}
+</ul>
 
-<script>
-  document.addEventListener('DOMContentLoaded', function () {
-    const userProfileButton = document.getElementById('user-profile');
-
-    userProfileButton.addEventListener('click', function () {
-      window.location.href = '/userprofile';
-    });
-  });
-
-
-</script>
+<script src="/public/js/hotels/allHotels.js"></script>

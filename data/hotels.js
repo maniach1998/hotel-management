@@ -107,10 +107,16 @@ const remove = async (hotelId, managerId) => {
 	return deletedhotel;
 };
 
-const getAll = async () => {
-	const hotels = await Hotel.find().populate('manager');
+const getAll = async (name) => {
+	if (!name) {
+		const hotels = await Hotel.find();
 
-	return hotels;
+		return hotels;
+	} else {
+		const hotels = await Hotel.find({ name: { $regex: name, $options: 'i' } });
+
+		return hotels;
+	}
 };
 
 const getAllManaged = async (managerId) => {
