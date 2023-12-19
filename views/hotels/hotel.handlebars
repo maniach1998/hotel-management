@@ -11,7 +11,7 @@
 <p>Available Rooms: {{rooms.length}}</p>
 
 {{#if rooms.length}}
-<button onclick="handleClick('{{hotel._id}}')">Check availability</button>
+<button type="button" onclick="handleClick('{{hotel._id}}')">Check availability</button>
 {{/if}}
 
 <h3 id="reviews">Reviews</h3>
@@ -31,20 +31,28 @@
 
 <h3 id="comments">Comments</h3>
 {{#if hotel.comments.length}}
-{{#each hotel.comments}}
-<div id="{{this._id}}">
-  <h5>{{this.author}}</h5>
-  <p>{{this.content}}</p>
-  <p>Posted on: {{this.createdAt}}</p>
-</div>
-
-{{/each}}
+<ul id="comments-list">
+  {{#each hotel.comments}}
+  <li id="{{this._id}}">
+    <div>
+      <h5>{{this.author}}</h5>
+      <p>{{this.content}}</p>
+      <p>Posted on: {{this.createdAt}}</p>
+    </div>
+  </li>
+  {{/each}}
+</ul>
 {{else}}
 <p>No comments yet!</p>
 {{/if}}
 
-<script>
-  function handleClick(id) {
-    window.location.href = `/hotels/${id}/rooms`
-  }
-</script>
+<form id="create-comment-form" action="/hotels/{{hotel._id}}/comments" method="post">
+  <label for="content">Comment</label>
+  <input type="text" name="content" id="content" placeholder="write comment here...">
+
+  <button type="submit">Post</button>
+
+  <ul id="comment-errors" hidden></ul>
+</form>
+
+<script src="/public/js/hotels/comments.js"></script>

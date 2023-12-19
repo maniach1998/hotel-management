@@ -52,6 +52,7 @@ async function handleDelete(roomId) {
 			errorElement.innerHTML = `<pre>${err}</pre>`;
 
 			errorsList.appendChild(errorElement);
+			errorsList.hidden = false;
 		});
 }
 
@@ -134,6 +135,7 @@ async function handleSubmit(e) {
 				errorElement.innerHTML = `<pre>${err}</pre>`;
 
 				errorsList.appendChild(errorElement);
+				errorsList.hidden = false;
 			});
 	}
 }
