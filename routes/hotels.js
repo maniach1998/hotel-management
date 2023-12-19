@@ -3,6 +3,7 @@ const router = Router();
 
 import { hotelData, commentData } from '../data/index.js';
 import { checkId, checkString, checkValidDate, checkValidDateDifference } from '../helpers.js';
+import { checkAuthorized } from '../middleware.js';
 
 router.route('/').get(async (req, res) => {
 	try {
@@ -171,9 +172,10 @@ router
 			return res.status(e.status).send({ error: e.message });
 		}
 	})
-	.post(async (req, res) => {
+	.post(checkAuthorized, async (req, res) => {
 		// Creates a comment on hotel with _id: hotelId
 		let hotelId = req.params.hotelId;
+		const author = req.session.user;
 		const newCommentData = req.body;
 
 		const errors = [];
@@ -187,11 +189,11 @@ router
 		}
 
 		// Check comment author id
-		try {
-			newCommentData.author = checkId(newCommentData.author, 'author');
-		} catch (e) {
-			errors.push(e.message);
-		}
+		// try {
+		// 	newCommentData.author = checkId(newCommentData.author, 'author');
+		// } catch (e) {
+		// 	errors.push(e.message);
+		// }
 
 		// Check comment content
 		try {
@@ -207,11 +209,7 @@ router
 
 		// If data is valid, create a new comment
 		try {
-			const comment = await commentData.create(
-				hotelId,
-				newCommentData.author,
-				newCommentData.content
-			);
+			const comment = await commentData.create(hotelId, author._id, newCommentData.content);
 
 			return res.send({ comment });
 		} catch (e) {

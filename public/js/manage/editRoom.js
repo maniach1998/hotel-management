@@ -93,6 +93,7 @@ async function handleEdit(e) {
 				errorElement.innerHTML = `<pre>${err}</pre>`;
 
 				errorsList.appendChild(errorElement);
+				errorsList.hidden = false;
 			});
 	}
 }
