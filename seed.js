@@ -4,7 +4,6 @@ import {
   hotelData,
   commentData,
   reviewData,
-  roomData,
   bookingData,
 } from "./data/index.js";
 
@@ -259,7 +258,7 @@ async function main() {
     console.log(e);
   }
   try {
-    room1 = await roomData.create(
+    room1 = await hotelData.createRoom(
       hotel1._id,
       manager1._id,
       "Deluxe",
@@ -271,7 +270,7 @@ async function main() {
     console.log(e);
   }
   try {
-    room2 = await roomData.create(
+    room2 = await hotelData.createRoom(
       hotel1._id,
       manager1._id,
       "Super Deluxe",
@@ -283,7 +282,7 @@ async function main() {
     console.log(e);
   }
   try {
-    room3 = await roomData.create(
+    room3 = await hotelData.createRoom(
       hotel1._id,
       manager1._id,
       "Super Deluxe Suite",
@@ -295,7 +294,7 @@ async function main() {
     console.log(e);
   }
   try {
-    room4 = await roomData.create(
+    room4 = await hotelData.createRoom(
       hotel2._id,
       manager2._id,
       "Deluxe",
@@ -307,7 +306,7 @@ async function main() {
     console.log(e);
   }
   try {
-    room5 = await roomData.create(
+    room5 = await hotelData.createRoom(
       hotel2._id,
       manager2._id,
       "Super Deluxe",
@@ -319,7 +318,7 @@ async function main() {
     console.log(e);
   }
   try {
-    room6 = await roomData.create(
+    room6 = await hotelData.createRoom(
       hotel2._id,
       manager2._id,
       "Super Deluxe Suite",
@@ -331,7 +330,7 @@ async function main() {
     console.log(e);
   }
   try {
-    room7 = await roomData.create(
+    room7 = await hotelData.createRoom(
       hotel3._id,
       manager3._id,
       "Deluxe",
@@ -343,7 +342,7 @@ async function main() {
     console.log(e);
   }
   try {
-    room8 = await roomData.create(
+    room8 = await hotelData.createRoom(
       hotel3._id,
       manager3._id,
       "Super Deluxe",
@@ -355,7 +354,7 @@ async function main() {
     console.log(e);
   }
   try {
-    room9 = await roomData.create(
+    room9 = await hotelData.createRoom(
       hotel3._id,
       manager3._id,
       "Super Deluxe Suite",
