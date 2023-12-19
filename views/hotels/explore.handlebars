@@ -11,59 +11,59 @@
 
 <p>A collection of all our hotels, for you to explore</p>
 
-<body>
-  <form action="/hotels/search" method="GET">
-    <input type="text" name="name" placeholder="Search by hotel name">
-    <button type="submit">Search</button>
+
+<form action="/hotels/search" method="GET">
+  <input type="text" name="name" placeholder="Search by hotel name">
+  <button type="submit">Search</button>
 </form>
-  <ul class="hotels-list">
-    {{#each hotels}}
-    <li id="{{{this._id}}}">
-      <a href="/hotels/{{this._id}}">
-        <h2>{{this.name}}</h2>
-      </a>
+<ul class="hotels-list">
+  {{#each hotels}}
+  <li id="{{{this._id}}}">
+    <a href="/hotels/{{this._id}}">
+      <h2>{{this.name}}</h2>
+    </a>
 
-      {{#if this.description}}
-      <p>{{this.description}}</p>
-      {{else}}
-      <p>No description</p>
-      {{/if}}
+    {{#if this.description}}
+    <p>{{this.description}}</p>
+    {{else}}
+    <p>No description</p>
+    {{/if}}
 
-      <p>Rating: <a href="/hotels/{{this._id}}/#reviews"><strong>{{this.rating}}</strong>⭐</a>,
-        <a href="/hotels/{{this._id}}/#comments">{{this.comments.length}}</a> comments
-      </p>
+    <p>Rating: <a href="/hotels/{{this._id}}/#reviews"><strong>{{this.rating}}</strong>⭐</a>,
+      <a href="/hotels/{{this._id}}/#comments">{{this.comments.length}}</a> comments
+    </p>
 
-    </li>
-    {{/each}}
-  </ul>
-  <!-- JavaScript for the search form -->
+  </li>
+  {{/each}}
+</ul>
+<!-- JavaScript for the search form -->
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const searchForm = document.getElementById('searchForm');
+  document.addEventListener('DOMContentLoaded', function () {
+    const searchForm = document.getElementById('searchForm');
 
-        searchForm.addEventListener('submit', function (event) {
-            event.preventDefault(); // Prevent the default form submission
+    searchForm.addEventListener('submit', function (event) {
+      event.preventDefault(); // Prevent the default form submission
 
-            const searchTerm = searchForm.elements['name'].value;
+      const searchTerm = searchForm.elements['name'].value;
 
-            // Perform actions with the search term (e.g., fetch data using fetch API)
-            // Example: Fetch data from server based on search term
-            fetch(`/hotels/search?name=${searchTerm}`)
-                .then(response => response.json())
-                .then(data => {
-                    // Handle the data returned from the search
-                    console.log(data.hotels); // Display or use search results as needed
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                });
+      // Perform actions with the search term (e.g., fetch data using fetch API)
+      // Example: Fetch data from server based on search term
+      fetch(`/hotels/search?name=${searchTerm}`)
+        .then(response => response.json())
+        .then(data => {
+          // Handle the data returned from the search
+          console.log(data.hotels); // Display or use search results as needed
+        })
+        .catch(error => {
+          console.error('Error:', error);
         });
-        
-        // Add any additional logic specific to this template
-        // ...
     });
+
+    // Add any additional logic specific to this template
+    // ...
+  });
 </script>
-</body>
+
 
 <script>
   document.addEventListener('DOMContentLoaded', function () {
