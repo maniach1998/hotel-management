@@ -463,13 +463,12 @@ async function main() {
     console.log(e);
   }
 
-  console
-    .log
-    // manager3,
-    // manager5,
-    // manager4,
-    // manager1,
-    // manager2
+  console.log(
+    manager3,
+    manager5,
+    manager4,
+    manager1,
+    manager2
     // hotel1,
     // hotel2,
     // hotel3,
@@ -494,7 +493,7 @@ async function main() {
     // room7,
     // room8,
     // room9
-    ();
+  );
 
   console.log("Done seeding :)");
   process.exit(1);
