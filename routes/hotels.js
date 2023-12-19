@@ -6,12 +6,15 @@ import { checkId, checkString, checkValidDate, checkValidDateDifference } from '
 import { checkAuthorized } from '../middleware.js';
 
 router.route('/').get(async (req, res) => {
+	const { name } = req.query;
+
 	try {
-		const hotels = await hotelData.getAll();
+		const hotels = await hotelData.getAll(name);
 
 		return res.render('hotels/explore', {
 			title: 'Explore Hotels',
 			hotels: hotels.map((hotel) => hotel.toJSON()),
+			searchTerm: name,
 		});
 	} catch (e) {
 		return res.status(500).send({ error: e.message });
@@ -187,13 +190,6 @@ router
 		} catch (e) {
 			errors.push(e.message);
 		}
-
-		// Check comment author id
-		// try {
-		// 	newCommentData.author = checkId(newCommentData.author, 'author');
-		// } catch (e) {
-		// 	errors.push(e.message);
-		// }
 
 		// Check comment content
 		try {
@@ -389,17 +385,16 @@ router
 		// return deleted reply
 	});
 
-
 ////////////////////////// SEARCH HOTEL //////////////////
 
 router.get('/hotels/search', async (req, res) => {
-    try {
-        const searchTerm = req.query.name; // Retrieving the search term from query parameter 'name'
-        const hotels = await hotelData.getAll.find({ name: { $regex: searchTerm, $options: 'i' } });
-        // Perform a case-insensitive search for hotels matching the name
-        return res.status(200).json({ hotels });
-    } catch (err) {
-        return res.status(500).json({ error: err.message });
-    }
+	try {
+		const searchTerm = req.query.name; // Retrieving the search term from query parameter 'name'
+		const hotels = await hotelData.getAll.find({ name: { $regex: searchTerm, $options: 'i' } });
+		// Perform a case-insensitive search for hotels matching the name
+		return res.status(200).json({ hotels });
+	} catch (err) {
+		return res.status(500).json({ error: err.message });
+	}
 });
 export default router;

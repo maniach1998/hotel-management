@@ -11,12 +11,13 @@
 
 <p>A collection of all our hotels, for you to explore</p>
 
-
-<form action="/hotels/search" method="GET">
-  <input type="text" name="name" placeholder="Search by hotel name">
+<form action="/hotels" method="GET">
+  <input type="text" name="name" placeholder="Search by hotel name" value="{{searchTerm}}">
   <button type="submit">Search</button>
 </form>
+
 <ul class="hotels-list">
+  {{#if hotels.length}}
   {{#each hotels}}
   <li id="{{{this._id}}}">
     <a href="/hotels/{{this._id}}">
@@ -35,44 +36,11 @@
 
   </li>
   {{/each}}
+  {{else}}
+
+  <p>No hotels to show!</p>
+
+  {{/if}}
 </ul>
-<!-- JavaScript for the search form -->
-<script>
-  document.addEventListener('DOMContentLoaded', function () {
-    const searchForm = document.getElementById('searchForm');
 
-    searchForm.addEventListener('submit', function (event) {
-      event.preventDefault(); // Prevent the default form submission
-
-      const searchTerm = searchForm.elements['name'].value;
-
-      // Perform actions with the search term (e.g., fetch data using fetch API)
-      // Example: Fetch data from server based on search term
-      fetch(`/hotels/search?name=${searchTerm}`)
-        .then(response => response.json())
-        .then(data => {
-          // Handle the data returned from the search
-          console.log(data.hotels); // Display or use search results as needed
-        })
-        .catch(error => {
-          console.error('Error:', error);
-        });
-    });
-
-    // Add any additional logic specific to this template
-    // ...
-  });
-</script>
-
-
-<script>
-  document.addEventListener('DOMContentLoaded', function () {
-    const userProfileButton = document.getElementById('user-profile');
-
-    userProfileButton.addEventListener('click', function () {
-      window.location.href = '/userprofile';
-    });
-  });
-
-
-</script>
+<script src="/public/js/hotels/allHotels.js"></script>
