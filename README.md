@@ -26,3 +26,20 @@
 - [x] add type checking for room capacity
 - [ ] add type checking helper for optional fields (allows empty string)
 - [ ] add address and contact info to hotel schema
+
+Booking Functionality Issue
+
+Currently, there seems to be an issue with the frontend implementation for bookings. To facilitate testing and showcase the backend functionality, I've included instructions below on how to make bookings using Postman:
+
+Instructions for Bookings Testing:
+
+To simulate bookings, you can utilize Postman by sending a POST request to http://localhost:3000/bookings/ with the following raw JSON data:
+{
+"hotel":"6580983451f912f81a8099ca",
+"room":"6580984451f912f81a8099ce",
+"bookedBy":"65808a94dea13f96f59d5235",
+"bookedFrom":"12/25/2023",
+"bookedTill":"12/30/2023"
+}
+
+Please note that this method bypasses the frontend and directly interacts with the backend for booking functionalities.
