@@ -8,7 +8,7 @@ export const UserSchema = new Schema({
 	email: { type: String, required: true, max: 255, unique: true },
 	password: { type: String, required: true, max: 512 },
 	accountType: { type: String, default: ROLES.USER },
-	bookings: [{ type: mongoose.ObjectId, ref: 'Booking' }],
+	// bookings: [{ type: mongoose.ObjectId, ref: 'Booking' }],
 	createdAt: { type: Date, default: Date.now },
 });
 

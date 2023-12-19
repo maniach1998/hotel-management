@@ -18,8 +18,9 @@ async function checkAuthorized(req, res, next) {
 		return res.redirect('/login');
 	} else {
 		// falls through if user is authorized
+		req.user = req.session.user;
 		next();
-	}
+	}	
 }
 
 async function checkManager(req, res, next) {

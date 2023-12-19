@@ -161,6 +161,7 @@ router
 router.route('/logout').get(checkAuthorized, async (req, res) => {
 	// authorized user -> destroy session and render logout page
 	req.session.destroy();
+	// console.log("destroyed session")
 	return res.render('home/logout', { title: 'Logout' });
 });
 
