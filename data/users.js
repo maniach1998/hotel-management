@@ -134,23 +134,39 @@ const getUserBookings = async (userId) => {
 };
 
 const getProfile = async (userId) => {
-	// Validation
-	userId = checkId(userId, "User Id");
+    // Validation
+    userId = checkId(userId, "User Id");
 
-	// Find and return the user
-	const user = await User.findById(userId).populate("user");
-	if (!user) throw { status: 404, message: "Couldn't find this user!" };
+    // Find the user
+    const user = await User.findById(userId);
+    if (!user) throw { status: 404, message: "Couldn't find this user!" };
 
-	const userbooking = await Booking.findById(userId);
-	if (!userbooking)
-		throw {
-			status: 404,
-			message: "User with this `userId` doesn't exist!",
-		};
+    // Find the bookings for the user and populate the associated hotel and room details
+    const userBookings = await Booking.find({ bookedBy: userId }).populate({
+        path: 'hotel',
+        populate: {
+            path: 'rooms',
+            model: 'Room'
+        }
+    });
 
-	const bookings = userbooking.bookings;
-	const res = { user, bookings };
-	return res;
+    // Prepare response
+    let res;
+    if (userBookings && userBookings.length === 0) {
+        res = { user, message: "This user has no bookings yet." };
+    } else {
+        const bookings = userBookings.map(booking => ({
+            hotelName: booking.hotel.name, // Assuming the hotel has a 'name' field
+            roomType: booking.hotel.rooms.find(room => room._id.equals(booking.room)).type,
+            finalAmount: booking.finalAmount,
+            bookedFrom: booking.bookedFrom,
+            bookedTill: booking.bookedTill
+            // Add other fields as needed
+        }));
+        res = { user, bookings };
+    }
+
+    return res;
 };
 
 const getAll = async () => {

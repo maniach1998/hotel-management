@@ -389,4 +389,17 @@ router
 		// return deleted reply
 	});
 
+
+////////////////////////// SEARCH HOTEL //////////////////
+
+router.get('/hotels/search', async (req, res) => {
+    try {
+        const searchTerm = req.query.name; // Retrieving the search term from query parameter 'name'
+        const hotels = await hotelData.getAll.find({ name: { $regex: searchTerm, $options: 'i' } });
+        // Perform a case-insensitive search for hotels matching the name
+        return res.status(200).json({ hotels });
+    } catch (err) {
+        return res.status(500).json({ error: err.message });
+    }
+});
 export default router;

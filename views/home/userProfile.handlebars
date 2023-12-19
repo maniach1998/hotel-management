@@ -1,0 +1,29 @@
+<head>
+    <title>User Profile</title>
+</head>
+<body>
+
+<a href="/hotels">Back</a>    
+<a href="/logout">Logout</a>
+
+    <div>
+        <h2>User Details:</h2>
+        <p>Name: {{user.firstName}} {{user.lastName}}</p>
+        <p>Email: {{user.email}}</p>
+        <p>Account Type: {{user.accountType}}</p>
+    </div>
+ <div>
+        <h2>Bookings:</h2>
+        <ul>
+            {{#each bookings}}
+                <li>
+                    <p> Hotel Name: {{this.hotelName}}</p>
+                    <p>Room: {{this.roomType}}</p>
+                    <p>Final Amount: {{this.finalAmount}}</p>
+                    <p>Booked From: {{this.bookedFrom}}</p>
+                    <p>Booked Till: {{this.bookedTill}}</p>
+                </li>
+            {{/each}}
+        </ul>
+    </div>
+</body>

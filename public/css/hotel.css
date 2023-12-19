@@ -78,3 +78,17 @@ p.date-posted {
 	font-size: 0.8rem;
 	color: #888;
 }
+
+
+header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	position: relative; /* Add position relative for positioning the logout link */
+  }
+  
+  #logout {
+	position: absolute; /* Position the logout link absolutely */
+	top: 10px; /* Adjust top position */
+	right: 10px; /* Adjust right position */
+  }

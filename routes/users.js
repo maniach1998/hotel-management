@@ -25,8 +25,18 @@ router.route('/hotels/userprofile').get(checkAuthorized, async (req, res) => {
 	try {
 		console.log('This is request', req);
 		console.log('This is response', res);
-		const userprofile = await userData.getProfile(User._id);
-		return userprofile;
+		const userId = req.user._id;
+		const userprofile = await userData.getProfile(userId);
+		res.render('home/userProfile', { 
+            user: {
+                firstName: userprofile.user.firstName,
+                lastName: userprofile.user.lastName,
+                email: userprofile.user.email,
+                accountType: userprofile.user.accountType
+            },
+            bookings: userprofile.bookings || [] // Ensure bookings is an array or empty array if undefined
+        });
+
 	} catch (e) {
 		return res.status(500).send({ error: e.message });
 	}
