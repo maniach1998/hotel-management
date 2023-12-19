@@ -28,6 +28,7 @@ router.route('/hotels/userprofile').get(checkAuthorized, async (req, res) => {
 		const userId = req.user._id;
 		const userprofile = await userData.getProfile(userId);
 		res.render('home/userProfile', { 
+			title:"User Profile",
             user: {
                 firstName: userprofile.user.firstName,
                 lastName: userprofile.user.lastName,
